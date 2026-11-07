@@ -11,7 +11,7 @@ jobs:
           java-version: 17
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: 8.9
+          gradle-version: 1.1
       - name: Generate app
         run: |
           mkdir -p app/src/main/java/com/eyes app/src/main/res/xml app/src/main/res/values
@@ -23,12 +23,14 @@ jobs:
           cat > build.gradle <<'EOF'
           plugins { id 'com.android.application' version '8.5.2' apply false }
           EOF
+          echo 'MIIKZgIBAzCCChAGCSqGSIb3DQEHAaCCCgEEggn9MIIJ+TCCBcAGCSqGSIb3DQEHAaCCBbEEggWtMIIFqTCCBaUGCyqGSIb3DQEMCgECoIIFQDCCBTwwZgYJKoZIhvcNAQUNMFkwOAYJKoZIhvcNAQUMMCsEFJkg15puJu0oQgI/Uwx7OCo3Ni70AgInEAIBIDAMBggqhkiG9w0CCQUAMB0GCWCGSAFlAwQBKgQQ6f6CnIHbezziViEqHZ03KASCBNB8o/8qR+Lodg0TBiJE5ICO/VhlVopoiJUR/3sZs2wlKIthz1HdNyjHxKoeL0/q9NB0SX939m3O2D6r5i5O06/AdBtmpLc/hC2DXWfNsbv/2I2WwDqOmnS4JqWPKtr5tH+hllNXagvLt8UIxI+Dk3GZxtl0pe2ZeeTVsQmZcv1lkvHCdgw20iwaRAQIZQlu3jWIBUX6zD37V+tsTfFg4N6jVHDopph+YqTisaFAvDBpp/S0zw0hyuc58p7FbmZ+ADBGhH3mH5HRVKzB/eDfiFyM6XueGgPZiTeue/XVUtmiA1XNklsqIpF/nQBW1AXXIbbJ9AZU801BXf8m+ko2bS3jTUsn/4Oevfxju3PViTviTPuHUvCKiCmUfCs8VnLhfGcsMa7ykWrc005Oos2sFdHYJpnYslfIhzcbm7V7DSfz2gJeC0huf9+IlWdumw75I1oQxB6Ykho1/ZEPaXU4MhQM0JtsBV/QbwCr8LPwSKOKzmrD+YgwDxqJSnjgyOzsHTHNsEAT3lkigKBh9kGRLqQbcwtztc9hHMBMs6nWaZ/waDtzcCBYmF0W7qWprKve/kDhkqRq6EZjD4pgmtNWcO0wgS22XvXFk/yHTJOzHCUokenNjjJE0HgoX1tJFWmIhVIDWkFf75r5ap2IWy4P8BS2Qd6E/aRMaQW2OWQLuDiTuYQOR/y6PDXM8Riq8CMMYomco0b674AYmrwqwTi8x2iJWZkSJVnS55Z/enlQAtt5jxvL4UKdNepxfqYzZPCY+FtFiQm196v5rQH8sUpxw99P1B9IjQvBFF9ty+0vpwLpH4hzS9bNhelPIqNG/DjJTCamlM06jWJMLhf3gesWC0zxFMCNBV/IPynX/X0tx1xhx6utBms/mOvh8m2F8e2pD2U9s2cOfa1guDu/rRBPsmOurWK0I7Qbyjxs7p3g29x/YCmh8G+q4BAYgxRYFJkbucUDZnrOHojh4/sftbHwbx46W6CdV8e5qXZG7WJC+eBitEFRSv9WdOWih+cEUu9hehyU0cP+a2bxMjxYFlhxY5ojIlW7DXTMOr6i2ICaqJk3s42R51voF9+mNO+OYyi1kA76rQhB1LlYaOS4o1aO0+Zb47lFCgaSn+gHkF4dkGjlIN5CWs+UgVxwIWadJStW5wJckIboyODRbgD+Dh8guRut+n6b6VoGMgRRH0j5nfciZ8cSpZ6RvuFBK8OXRn/fR0qF0VvhS1PeJ3q1DFjllkUjtdOenXy2+Te8MBFHqHQlI4Urxv0xF5JmnGmJ8wf/YhYKspKHUSQjnXsVZ5edeXGkkRkUlh1T78mBYZD7FLpVcwNKstkMV5B4lGqqW7ZsIZHGCzrMeu9EFo/slKFeYinlezYvzBYvwuy5iixJiQ6vfP/hbW+EXRMZKL7mLL5lD3Vgr0L7rgfFwqe616IlAvE8PETA8Cg9lvdzgR0pwGbWcIRzSCJTASdFWN/bZEm5St9vdUlUBPDimlhrNkjRIFPw4w8nYo0QiEMCoreeqIE0X5ShXrKMxojAcdGcALiw0A9OaOc0ScCenjnpG+jh6tqIK7SSdtjiirfLg9Z/MYXDuquTCGrqndXfwsmciFRnnyQKreOu7xyjybWC1W14owFM3O5GDQNCeDPLvC50mXwRLDFSMC0GCSqGSIb3DQEJFDEgHh4AYQBuAGQAcgBvAGkAZABkAGUAYgB1AGcAawBlAHkwIQYJKoZIhvcNAQkVMRQEElRpbWUgMTc5NDA3MjAzMzk1MDCCBDEGCSqGSIb3DQEHBqCCBCIwggQeAgEAMIIEFwYJKoZIhvcNAQcBMGYGCSqGSIb3DQEFDTBZMDgGCSqGSIb3DQEFDDArBBSH0LWTMCYeWNo1mfZhvSQ3LZWvLQICJxACASAwDAYIKoZIhvcNAgkFADAdBglghkgBZQMEASoEEDsxheq7dD3u+BUFwyfrCxaAggOgYnRNdzUl1+Vd1GIdzpJkQrHIxDy+Mx3hK2U1TysX4raAGBGYbA8o06XXWmo+pAQxltqHUpXoEJEhF3tWc/yxUATHNzoXK1Be8Ms3GI2fqR6VVmik0sVYtB1HLoHzvXMQdjoc0WziAj54MRP+TlqpMOTIO0kJKfOltCNNnkz6uI48Ds2T35WWL74J8U6G9Xq06UPJuw4F/qcBXRnKHeFKEXhifU5/MELK+X52ZJwR4fVil58hssvGe9eeCXGcXb4hyaoHqj9la6pvIkemGTFN1J5SyLuW4J2AfqmIuVnBgr0FvJbCKdEzykzUzXIfqFEDLmwGW9pozCGF90v2q37P8pP6qoV/0yNfqylSG4lpDKs64fO5N8n7OcsQHugNPQLBVkd1UuJ3OA93gokMmbP04F4dvkuKwiF2+dYnibE909D8bgUaQjOu1Mur8u0Sn1bqQh/yq1qcHmiyVApCQw3ATf4RlfD9TeOApOBVsOEiEUjOWioLYsmlRYUH2T3zAlHFgR21pk0nyxoiFHPpOhjkFHOciHcMuUOvTRYQE0lFIiut0DyATt4hRuDAtZlLnLqqtr/sFyhxwPD3kgBXZYa1gAr9A0sal26JgDta3KkbjclTAtukN0ph7gfpdtSLKCkvt1wcxhIjP/J6Uzv5B4s26HjP84/1qP6P3m9f9m7P37JtJQ15pMxEZHDTMoGbiKCJ4K5flUTPR9aI2zTKrmVebPEVjeUqdaZoLtnJspDlGW1sxho7vJsWAt9CUJUSxlY1wjBIfkK9V4hfZo+C6iYJres3aoVfqnlb+rFM/Gp3D7B0tK7PFJIZZpqJcuKOK4VM8HJRJ1jYpRQxY52Q3yAOMmJrLLn081XpLVSK5VUXwg5nl2rPVuHVjDluKUp1lDjxxgDA5H/U7uUEtjG6sL1A2geldk7nqn+xpArZFm5NJQS4APVIvsxTTctBeRYm0bd/ul3pw2Gw4A4DGwq5wLmOljVsjWgExz/VNCySXggnkocEa2Kpi/Az4k75jZ1pTtS9aFwfDAUmMly6Y9rEZRlHpu9WJWGkN/LwViLaa1tz/uHYf4o6xEPD7lrszHH3Ttko8It42CMVp+62gPaG2XgNTzfDtjZsvJ9T7HvKBz/Ai5djp+cVl2vKmwknfpqY2GB5kAAEeoZ3oq9mYzYSwj5ufW8Di9rZVrZcTOZnwxGhxAy2bCrClxuFfH+wuDQ6ul4JMnN7iaUB2CzPeZPRa5Pv7DBNMDEwDQYJYIZIAWUDBAIBBQAEILj/S+M+chKu9K6nkAV7G9BhKCM8rCIT4hqKHU9Wht67BBSWfssSe6ZiqqYgzkK44wxXvdnaTAICJxA=' | base64 -d > app/debug.keystore
           cat > app/build.gradle <<'EOF'
           plugins { id 'com.android.application' }
           android {
           namespace 'com.eyes'
+          signingConfigs { debug { storeFile file('debug.keystore'); storePassword 'android'; keyAlias 'androiddebugkey'; keyPassword 'android' } }
           compileSdk 34
-          defaultConfig { applicationId 'com.eyes'; minSdk 30; targetSdk 34; versionCode 3; versionName '3' }
+          defaultConfig { applicationId 'com.eyes'; minSdk 30; targetSdk 34; versionCode 5; versionName '5' }
           compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
           }
           EOF
@@ -36,7 +38,7 @@ jobs:
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
           <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
           <uses-permission android:name="android.permission.WAKE_LOCK"/>
-          <queries><package android:name="com.tradingview.tradingviewapp"/><package android:name="com.metaquotes.metatrader5"/></queries>
+          <queries><package android:name="com.tradingview.tradingviewapp"/><package android:name="net.metaquotes.metatrader5"/></queries>
           <application android:label="Eyes">
           <activity android:name=".MainActivity" android:exported="true"><intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter></activity>
           <service android:name=".EyesService" android:exported="true" android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"><intent-filter><action android:name="android.accessibilityservice.AccessibilityService"/></intent-filter><meta-data android:name="android.accessibilityservice" android:resource="@xml/eyes_config"/></service>
@@ -79,6 +81,10 @@ jobs:
           if (EyesService.me == null) out.setText("Eyes is off. Do step 1.");
           else { out.setText("Looking..."); EyesService.me.check(); }
           });
+          mk(l, "Test MT5: close all, then BUY").setOnClickListener(v -> {
+          if (EyesService.me == null) out.setText("Eyes is off. Do step 1.");
+          else { out.setText("Testing MT5..."); EyesService.me.trade(true); }
+          });
           tog(mk(l, ""), "Auto-check every 30 min", "auto");
           tog(mk(l, ""), "Place trades", "trade");
           mk(l, "Forget last signal").setOnClickListener(v -> sp.edit().remove("last").apply());
@@ -119,6 +125,7 @@ jobs:
           SharedPreferences sp;
           int lastSlot = -1;
           int tries = 0;
+          int first = -1;
           Runnable loop = new Runnable() {
           public void run() {
           Calendar c = Calendar.getInstance();
@@ -143,17 +150,19 @@ jobs:
           nm.createNotificationChannel(new NotificationChannel("eyes", "Eyes", NotificationManager.IMPORTANCE_HIGH));
           nm.notify((int) (System.currentTimeMillis() % 100000), new Notification.Builder(this, "eyes").setSmallIcon(android.R.drawable.ic_dialog_info).setContentTitle("Eyes").setContentText(t).setStyle(new Notification.BigTextStyle().bigText(t)).build());
           }
-          void open(String pkg) {
+          boolean open(String pkg) {
           Intent i = getPackageManager().getLaunchIntentForPackage(pkg);
-          if (i == null) { say("App not found: " + pkg); return; }
+          if (i == null) { note("App not found: " + pkg); return false; }
           i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
           startActivity(i);
+          return true;
           }
           void check() {
           PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
           pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "eyes:w").acquire(180000);
-          open("com.tradingview.tradingviewapp");
+          if (!open("com.tradingview.tradingviewapp")) return;
           tries = 0;
+          first = -1;
           h.postDelayed(() -> tap("Chart"), 8000);
           h.postDelayed(() -> shot(), 35000);
           }
@@ -173,13 +182,18 @@ jobs:
           boolean buy = bc == 1;
           if (!sp.getBoolean("trade", false)) { note("Signal turned " + now + ". Trading is OFF, so I would close all and " + (buy ? "BUY" : "SELL") + "."); return; }
           note("Signal turned " + now + ". Closing all, then " + (buy ? "BUY" : "SELL") + ".");
-          open("com.metaquotes.metatrader5");
+          if (!trade(buy)) sp.edit().putString("last", old).apply();
+          }
+          boolean trade(boolean buy) {
+          if (!open("net.metaquotes.metatrader5")) return false;
           h.postDelayed(() -> tapXY(0.5f, 0.906f), 4000);
           h.postDelayed(() -> tapXY(0.936f, 0.288f), 6000);
           h.postDelayed(() -> tap("Close All Positions"), 8000);
           h.postDelayed(() -> tap("Charts"), 11000);
           h.postDelayed(() -> tapXY(buy ? 0.833f : 0.139f, 0.125f), 13500);
-          h.postDelayed(() -> note("Done: " + (buy ? "BUY" : "SELL") + " tapped. Check MT5."), 15500);
+          h.postDelayed(() -> note((buy ? "BUY" : "SELL") + " tapped, not confirmed. Check MT5."), 15500);
+          h.postDelayed(() -> snap(), 17500);
+          return true;
           }
           void tapXY(float fx, float fy) {
           DisplayMetrics d = getResources().getDisplayMetrics();
@@ -197,15 +211,48 @@ jobs:
           if (x != null) { x.performAction(AccessibilityNodeInfo.ACTION_CLICK); return; }
           }
           }
-          void shot() {
-          takeScreenshot(Display.DEFAULT_DISPLAY, getMainExecutor(), new TakeScreenshotCallback() {
-          public void onSuccess(ScreenshotResult s) {
+          Bitmap grab(ScreenshotResult s) {
           HardwareBuffer hb = s.getHardwareBuffer();
           Bitmap bm = Bitmap.wrapHardwareBuffer(hb, s.getColorSpace()).copy(Bitmap.Config.ARGB_8888, false);
           hb.close();
-          decide(find(bm));
+          return bm;
           }
-          public void onFailure(int c) { note("Screenshot failed (" + c + ")."); }
+          void save(Bitmap bm, String tag) {
+          try {
+          android.content.ContentValues v = new android.content.ContentValues();
+          v.put(android.provider.MediaStore.Images.Media.DISPLAY_NAME, "eyes_" + tag + "_" + System.currentTimeMillis() + ".jpg");
+          v.put(android.provider.MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+          v.put(android.provider.MediaStore.Images.Media.RELATIVE_PATH, "Pictures/Eyes");
+          android.net.Uri u = getContentResolver().insert(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, v);
+          java.io.OutputStream o = getContentResolver().openOutputStream(u);
+          bm.compress(Bitmap.CompressFormat.JPEG, 85, o);
+          o.close();
+          } catch (Exception e) {}
+          }
+          void snap() {
+          takeScreenshot(Display.DEFAULT_DISPLAY, getMainExecutor(), new TakeScreenshotCallback() {
+          public void onSuccess(ScreenshotResult s) { save(grab(s), "mt5"); }
+          public void onFailure(int c) {}
+          });
+          }
+          void shot() {
+          takeScreenshot(Display.DEFAULT_DISPLAY, getMainExecutor(), new TakeScreenshotCallback() {
+          public void onSuccess(ScreenshotResult s) {
+          Bitmap bm = grab(s);
+          save(bm, "tv");
+          int bc = find(bm);
+          if (first < 0) { first = bc; h.postDelayed(() -> shot(), 10000); }
+          else {
+          int f = first;
+          first = -1;
+          if (f == bc) decide(bc);
+          else note("Two reads disagreed, so I skipped this check.");
+          }
+          }
+          public void onFailure(int c) {
+          if (tries < 3) { tries++; h.postDelayed(() -> shot(), 8000); }
+          else { tries = 0; note("Screenshot failed (" + c + ")."); }
+          }
           });
           }
           static int box(int[] a, int W, int x, int y, int w, int h) {
