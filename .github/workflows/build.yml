@@ -28,7 +28,7 @@ jobs:
           android {
           namespace 'com.eyes'
           compileSdk 34
-          defaultConfig { applicationId 'com.eyes'; minSdk 30; targetSdk 34; versionCode 2; versionName '2' }
+          defaultConfig { applicationId 'com.eyes'; minSdk 30; targetSdk 34; versionCode 3; versionName '3' }
           compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
           }
           EOF
@@ -118,6 +118,7 @@ jobs:
           Handler h = new Handler(Looper.getMainLooper());
           SharedPreferences sp;
           int lastSlot = -1;
+          int tries = 0;
           Runnable loop = new Runnable() {
           public void run() {
           Calendar c = Calendar.getInstance();
@@ -150,13 +151,20 @@ jobs:
           }
           void check() {
           PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
-          pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "eyes:w").acquire(120000);
+          pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "eyes:w").acquire(180000);
           open("com.tradingview.tradingviewapp");
-          h.postDelayed(() -> tap("Chart"), 3500);
-          h.postDelayed(() -> shot(), 6500);
+          tries = 0;
+          h.postDelayed(() -> tap("Chart"), 8000);
+          h.postDelayed(() -> shot(), 35000);
           }
           void decide(int bc) {
-          if (bc == 0) { note("No big label found."); return; }
+          if (bc == 0) {
+          if (tries < 3) { tries++; h.postDelayed(() -> shot(), 15000); return; }
+          tries = 0;
+          note("No big label found after 3 tries.");
+          return;
+          }
+          tries = 0;
           String now = bc == 1 ? "GREEN" : "RED";
           String old = sp.getString("last", "");
           sp.edit().putString("last", now).apply();
