@@ -30,7 +30,7 @@ jobs:
           namespace 'com.eyes'
           signingConfigs { debug { storeFile file('debug.keystore'); storePassword 'android'; keyAlias 'androiddebugkey'; keyPassword 'android' } }
           compileSdk 34
-          defaultConfig { applicationId 'com.eyes'; minSdk 30; targetSdk 34; versionCode 12; versionName '12' }
+          defaultConfig { applicationId 'com.eyes'; minSdk 30; targetSdk 34; versionCode 13; versionName '13' }
           compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
           }
           EOF
@@ -513,9 +513,45 @@ jobs:
           until(() -> inPkg(M5), 30000, () -> h.postDelayed(() -> toCharts(() -> checkFlat(buy, 0)), 2500), () -> abort("MT5 did not open."));
           return true;
           }
+          void shotBmp(java.util.function.Consumer<Bitmap> cb) {
+          takeScreenshot(Display.DEFAULT_DISPLAY, getMainExecutor(), new TakeScreenshotCallback() {
+          public void onSuccess(ScreenshotResult s) { cb.accept(grab(s)); }
+          public void onFailure(int c) { cb.accept(null); }
+          });
+          }
+          boolean tradeScreen(Bitmap bm) {
+          int w = bm.getWidth(), h2 = bm.getHeight();
+          double s = 0, q = 0;
+          int n = 0;
+          for (int y = (int) (h2 * 0.277); y < (int) (h2 * 0.299); y += 2) {
+          for (int x = (int) (w * 0.30); x < (int) (w * 0.60); x += 3) {
+          int c = bm.getPixel(x, y);
+          double v = (((c >> 16) & 255) + ((c >> 8) & 255) + (c & 255)) / 3.0;
+          s += v; q += v * v; n++;
+          }
+          }
+          double m = s / n, sd = Math.sqrt(Math.max(0, q / n - m * m));
+          return m > 25 && m < 55 && sd < 4;
+          }
+          boolean chartsScreen(Bitmap bm) {
+          int w = bm.getWidth(), h2 = bm.getHeight();
+          long sat = 0;
+          int n = 0;
+          for (int y = (int) (h2 * 0.141); y < (int) (h2 * 0.147); y++) {
+          for (int x = (int) (w * 0.02); x < (int) (w * 0.15); x += 2) {
+          int c = bm.getPixel(x, y), r = (c >> 16) & 255, g = (c >> 8) & 255, b = c & 255;
+          sat += Math.max(r, Math.max(g, b)) - Math.min(r, Math.min(g, b));
+          n++;
+          }
+          }
+          return n > 0 && sat / n > 90;
+          }
           void toCharts(Runnable then) {
-          if (!(seen(getRootInActiveWindow(), "SELL") && seen(getRootInActiveWindow(), "BUY"))) tap("Charts");
+          shotBmp(bm -> {
+          if (bm != null && chartsScreen(bm)) { h.postDelayed(then, 500); return; }
+          tapXY(0.306f, 0.885f);
           h.postDelayed(then, 2000);
+          });
           }
           AccessibilityNodeInfo findPill(AccessibilityNodeInfo n, int top) {
           if (n == null) return null;
@@ -580,26 +616,31 @@ jobs:
           closeAll(() -> toCharts(() -> checkFlat(buy, round + 1)), () -> abort("I could not reach Close All in MT5."));
           });
           }
-          void closeAll(Runnable ok, Runnable fail) {
-          tradeTab();
-          until(() -> has("Positions"), 4000, () -> openMenu(ok, fail), () -> {
-          tradeTab();
-          until(() -> has("Positions"), 5000, () -> openMenu(ok, fail), fail);
-          });
+          void closeAll(Runnable ok, Runnable fail) { goTrade(0, ok, fail); }
+          void goTrade(int n, Runnable ok, Runnable fail) {
+          tapXY(0.5f, 0.885f);
+          h.postDelayed(() -> shotBmp(bm -> {
+          if (bm != null && tradeScreen(bm)) openMenu(ok, fail);
+          else if (n < 2) goTrade(n + 1, ok, fail);
+          else fail.run();
+          }), 2000);
           }
           void openMenu(Runnable ok, Runnable fail) {
           tapXY(0.936f, 0.288f);
           until(() -> has("Close All Positions"), 4000, () -> { tap("Close All Positions"); h.postDelayed(ok, 3000); }, () -> {
           tapXY(0.936f, 0.288f);
-          until(() -> has("Close All Positions"), 4000, () -> { tap("Close All Positions"); h.postDelayed(ok, 3000); }, fail);
+          until(() -> has("Close All Positions"), 4000, () -> { tap("Close All Positions"); h.postDelayed(ok, 3000); }, () -> {
+          tapXY(0.2f, 0.836f);
+          h.postDelayed(ok, 3000);
+          });
           });
           }
           void enter(boolean buy) {
           tapXY(buy ? 0.833f : 0.139f, 0.125f);
           h.postDelayed(() -> pillNow(st -> {
           if (st == 1) { sp.edit().putBoolean("open", true).apply(); journal(buy ? "BUY opened" : "SELL opened", ""); note((buy ? "BUY" : "SELL") + " placed and confirmed."); }
-          else note((buy ? "BUY" : "SELL") + " tapped but I could not confirm it. Check MT5.");
-          }), 3000);
+          else { sp.edit().putString("last", prev).apply(); note((buy ? "BUY" : "SELL") + " tapped but I could not confirm it. I will retry at the next check. Look at MT5."); }
+          }), 4000);
           }
           void tapXY(float fx, float fy) {
           DisplayMetrics d = getResources().getDisplayMetrics();
