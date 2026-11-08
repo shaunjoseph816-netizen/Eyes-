@@ -14,7 +14,7 @@ jobs:
           gradle-version: 8.9
       - name: Generate app
         run: |
-          mkdir -p app/src/main/java/com/eyes app/src/main/res/xml app/src/main/res/values
+          mkdir -p app/src/main/java/com/eyes app/src/main/res/xml app/src/main/res/values app/src/main/res/drawable
           cat > settings.gradle <<'EOF'
           pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
           dependencyResolutionManagement { repositories { google(); mavenCentral() } }
@@ -30,7 +30,7 @@ jobs:
           namespace 'com.eyes'
           signingConfigs { debug { storeFile file('debug.keystore'); storePassword 'android'; keyAlias 'androiddebugkey'; keyPassword 'android' } }
           compileSdk 34
-          defaultConfig { applicationId 'com.eyes'; minSdk 30; targetSdk 34; versionCode 5; versionName '5' }
+          defaultConfig { applicationId 'com.eyes'; minSdk 30; targetSdk 34; versionCode 8; versionName '8' }
           compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
           }
           EOF
@@ -39,7 +39,7 @@ jobs:
           <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
           <uses-permission android:name="android.permission.WAKE_LOCK"/>
           <queries><package android:name="com.tradingview.tradingviewapp"/><package android:name="net.metaquotes.metatrader5"/></queries>
-          <application android:label="Eyes">
+          <application android:label="Eyes" android:icon="@drawable/icon">
           <activity android:name=".MainActivity" android:exported="true"><intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter></activity>
           <service android:name=".EyesService" android:exported="true" android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"><intent-filter><action android:name="android.accessibilityservice.AccessibilityService"/></intent-filter><meta-data android:name="android.accessibilityservice" android:resource="@xml/eyes_config"/></service>
           </application>
@@ -47,6 +47,14 @@ jobs:
           EOF
           cat > app/src/main/res/xml/eyes_config.xml <<'EOF'
           <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android" android:accessibilityEventTypes="typeWindowStateChanged" android:accessibilityFeedbackType="feedbackGeneric" android:canRetrieveWindowContent="true" android:canTakeScreenshot="true" android:canPerformGestures="true" android:accessibilityFlags="flagDefault" android:description="@string/d" android:notificationTimeout="100"/>
+          EOF
+          cat > app/src/main/res/drawable/icon.xml <<'EOF'
+          <vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+          <path android:fillColor="#0A0E14" android:pathData="M0,0h108v108h-108z"/>
+          <path android:fillColor="#D4AF37" android:pathData="M30,38h8v32h-8z M33,30h2v8h-2z M33,70h2v8h-2z"/>
+          <path android:fillColor="#00C896" android:pathData="M50,28h8v38h-8z M53,20h2v8h-2z M53,66h2v10h-2z"/>
+          <path android:fillColor="#D4AF37" android:pathData="M70,44h8v30h-8z M73,36h2v8h-2z M73,74h2v8h-2z"/>
+          </vector>
           EOF
           cat > app/src/main/res/values/strings.xml <<'EOF'
           <resources><string name="d">Lets Eyes read the chart, follow the signal and tap in MT5.</string></resources>
@@ -56,44 +64,162 @@ jobs:
           import android.app.Activity;
           import android.content.Intent;
           import android.content.SharedPreferences;
+          import android.graphics.Typeface;
+          import android.graphics.drawable.GradientDrawable;
           import android.os.Build;
           import android.os.Bundle;
           import android.provider.Settings;
           import android.widget.*;
           public class MainActivity extends Activity {
           static TextView out;
+          static Runnable refresh;
           SharedPreferences sp;
-          Button mk(LinearLayout l, String t) { Button b = new Button(this); b.setText(t); l.addView(b); return b; }
-          void flag(Button b, String n, String k) { b.setText(n + ": " + (sp.getBoolean(k, false) ? "ON" : "OFF")); }
-          void tog(Button b, String n, String k) {
-          flag(b, n, k);
-          b.setOnClickListener(v -> { sp.edit().putBoolean(k, !sp.getBoolean(k, false)).apply(); flag(b, n, k); });
+          TextView sigBig, sigSub;
+          static final int BG = 0xFF0A0E14, CARD = 0xFF131A24, GOLD = 0xFFD4AF37, UP = 0xFF00C896, DN = 0xFFFF4D5E, TX = 0xFFE8ECF2, MUT = 0xFF8794A6, KEY = 0xFF1B2430;
+          int dp(int v) { return (int) (v * getResources().getDisplayMetrics().density); }
+          GradientDrawable box(int fill, int stroke, int r) {
+          GradientDrawable g = new GradientDrawable();
+          g.setColor(fill);
+          g.setCornerRadius(dp(r));
+          if (stroke != 0) g.setStroke(dp(1), stroke);
+          return g;
           }
-          protected void onCreate(Bundle s) {
-          super.onCreate(s);
+          TextView tv(String t, int size, int c, boolean bold) {
+          TextView x = new TextView(this);
+          x.setText(t);
+          x.setTextSize(size);
+          x.setTextColor(c);
+          if (bold) x.setTypeface(Typeface.DEFAULT_BOLD);
+          return x;
+          }
+          LinearLayout card(LinearLayout root, String title) {
+          LinearLayout c = new LinearLayout(this);
+          c.setOrientation(LinearLayout.VERTICAL);
+          c.setPadding(dp(16), dp(14), dp(16), dp(16));
+          c.setBackground(box(CARD, 0x44D4AF37, 18));
+          LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(-1, -2);
+          p.topMargin = dp(14);
+          root.addView(c, p);
+          c.addView(tv(title, 11, GOLD, true));
+          return c;
+          }
+          LinearLayout.LayoutParams lp() {
+          LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(-1, dp(52));
+          p.topMargin = dp(10);
+          return p;
+          }
+          Button btn(String t, boolean primary) {
+          Button b = new Button(this);
+          b.setText(t);
+          b.setAllCaps(false);
+          b.setTextSize(15);
+          b.setTypeface(Typeface.DEFAULT_BOLD);
+          b.setStateListAnimator(null);
+          b.setTextColor(primary ? BG : TX);
+          b.setBackground(box(primary ? GOLD : KEY, primary ? 0 : 0x33FFFFFF, 14));
+          return b;
+          }
+          EditText ed(String hint, String val) {
+          EditText e = new EditText(this);
+          e.setHint(hint);
+          e.setHintTextColor(MUT);
+          e.setTextColor(TX);
+          e.setText(val);
+          e.setSingleLine(true);
+          e.setTextSize(15);
+          e.setPadding(dp(12), dp(10), dp(12), dp(10));
+          e.setBackground(box(0xFF0E141C, 0x33FFFFFF, 12));
+          return e;
+          }
+          void paint(Button b, String name, String key) {
+          boolean on = sp.getBoolean(key, false);
+          b.setText(name + "   " + (on ? "ON" : "OFF"));
+          b.setTextColor(on ? BG : TX);
+          b.setBackground(box(on ? (key.equals("trade") ? DN : GOLD) : KEY, on ? 0 : 0x33FFFFFF, 14));
+          }
+          void tog(LinearLayout p, String name, String key) {
+          Button b = btn("", false);
+          p.addView(b, lp());
+          paint(b, name, key);
+          b.setOnClickListener(v -> { sp.edit().putBoolean(key, !sp.getBoolean(key, false)).apply(); paint(b, name, key); refresh.run(); });
+          }
+          protected void onCreate(Bundle b0) {
+          super.onCreate(b0);
           sp = getSharedPreferences("eyes", 0);
           if (Build.VERSION.SDK_INT >= 33) requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"}, 1);
-          LinearLayout l = new LinearLayout(this);
-          l.setOrientation(LinearLayout.VERTICAL);
-          l.setPadding(40, 120, 40, 40);
-          mk(l, "1. Turn on Eyes in Accessibility").setOnClickListener(v -> startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)));
-          mk(l, "2. Check signal now").setOnClickListener(v -> {
-          if (EyesService.me == null) out.setText("Eyes is off. Do step 1.");
+          getWindow().setStatusBarColor(BG);
+          getWindow().setNavigationBarColor(BG);
+          ScrollView sv = new ScrollView(this);
+          sv.setBackgroundColor(BG);
+          LinearLayout root = new LinearLayout(this);
+          root.setOrientation(LinearLayout.VERTICAL);
+          root.setPadding(dp(18), dp(44), dp(18), dp(28));
+          sv.addView(root);
+          root.addView(tv("EYES", 34, GOLD, true));
+          root.addView(tv("AI FOREX AGENT  \u00B7  DISCIPLINED. AUTOMATIC.", 11, MUT, false));
+          LinearLayout sig = card(root, "CURRENT SIGNAL");
+          sigBig = tv("WAITING", 42, TX, true);
+          sigSub = tv("", 13, MUT, false);
+          sig.addView(sigBig);
+          sig.addView(sigSub);
+          refresh = () -> {
+          String last = sp.getString("last", "");
+          if (last.equals("GREEN")) { sigBig.setText("BUY \u25B2"); sigBig.setTextColor(UP); }
+          else if (last.equals("RED")) { sigBig.setText("SELL \u25BC"); sigBig.setTextColor(DN); }
+          else { sigBig.setText("WAITING"); sigBig.setTextColor(TX); }
+          String pair = sp.getString("sym", "").isEmpty() ? "any chart" : sp.getString("sym", "");
+          String tf = sp.getString("tf", "").isEmpty() ? "" : "  \u00B7  " + sp.getString("tf", "") + "m";
+          sigSub.setText(pair + tf + "  \u00B7  " + (sp.getBoolean("trade", false) ? "TRADING LIVE" : "WATCH ONLY"));
+          };
+          LinearLayout ag = card(root, "AGENT");
+          Button chk = btn("CHECK SIGNAL NOW", true);
+          ag.addView(chk, lp());
+          chk.setOnClickListener(v -> {
+          if (EyesService.me == null) out.setText("Eyes is off. Enable it in Accessibility first.");
           else { out.setText("Looking..."); EyesService.me.check(); }
           });
-          mk(l, "Test MT5: close all, then BUY").setOnClickListener(v -> {
-          if (EyesService.me == null) out.setText("Eyes is off. Do step 1.");
-          else { out.setText("Testing MT5..."); EyesService.me.trade(true); }
+          tog(ag, "Auto-check every 30 min", "auto");
+          tog(ag, "Place trades", "trade");
+          LinearLayout ch = card(root, "CHART");
+          EditText sym = ed("Symbol on chart (e.g. BTCUSD)", sp.getString("sym", ""));
+          EditText tfe = ed("Timeframe in minutes (e.g. 30)", sp.getString("tf", ""));
+          tfe.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+          EditText exe = ed("Exchange (optional, e.g. Bitstamp)", sp.getString("exch", ""));
+          ch.addView(sym, lp());
+          ch.addView(tfe, lp());
+          ch.addView(exe, lp());
+          Button sv2 = btn("Save chart settings", false);
+          ch.addView(sv2, lp());
+          sv2.setOnClickListener(v -> {
+          sp.edit().putString("sym", sym.getText().toString().trim()).putString("tf", tfe.getText().toString().trim()).putString("exch", exe.getText().toString().trim()).apply();
+          out.setText("Saved: " + sym.getText() + " " + tfe.getText() + " min");
+          refresh.run();
           });
-          tog(mk(l, ""), "Auto-check every 30 min", "auto");
-          tog(mk(l, ""), "Place trades", "trade");
-          mk(l, "Forget last signal").setOnClickListener(v -> sp.edit().remove("last").apply());
-          out = new TextView(this);
-          out.setTextSize(20);
-          out.setText(EyesService.last);
-          l.addView(out);
-          setContentView(l);
+          LinearLayout tl = card(root, "TOOLS");
+          Button acc = btn("Enable Eyes in Accessibility", false);
+          tl.addView(acc, lp());
+          acc.setOnClickListener(v -> startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)));
+          Button tst = btn("Test MT5: close all, then BUY", false);
+          tst.setTextColor(DN);
+          tl.addView(tst, lp());
+          tst.setOnClickListener(v -> {
+          if (EyesService.me == null) out.setText("Eyes is off. Enable it in Accessibility first.");
+          else { out.setText("Testing MT5..."); EyesService.me.prev = EyesService.me.sp.getString("last", ""); EyesService.me.trade(true, false); }
+          });
+          Button fg = btn("Forget last signal", false);
+          tl.addView(fg, lp());
+          fg.setOnClickListener(v -> { sp.edit().remove("last").remove("open").apply(); refresh.run(); });
+          LinearLayout fd = card(root, "ACTIVITY");
+          out = tv(EyesService.last, 14, TX, false);
+          out.setTypeface(Typeface.MONOSPACE);
+          fd.addView(out);
+          TextView ft = tv("Automated trading carries risk. Always test on a demo account first.", 11, MUT, false);
+          ft.setPadding(0, dp(16), 0, 0);
+          root.addView(ft);
+          setContentView(sv);
+          refresh.run();
           }
+          protected void onResume() { super.onResume(); if (refresh != null) refresh.run(); }
           }
           EOF
           cat > app/src/main/java/com/eyes/EyesService.java <<'EOF'
@@ -142,6 +268,7 @@ jobs:
           void say(String t) {
           last = t;
           if (MainActivity.out != null) MainActivity.out.setText(t);
+          if (MainActivity.refresh != null) MainActivity.refresh.run();
           Toast.makeText(this, t, Toast.LENGTH_LONG).show();
           }
           void note(String t) {
@@ -163,8 +290,11 @@ jobs:
           if (!open("com.tradingview.tradingviewapp")) return;
           tries = 0;
           first = -1;
+          chartOk = true;
+          h.postDelayed(() -> chartOk = chartMatches(), 44000);
           h.postDelayed(() -> tap("Chart"), 8000);
-          h.postDelayed(() -> shot(), 35000);
+          h.postDelayed(() -> ensureChart(), 11000);
+          h.postDelayed(() -> shot(), 47000);
           }
           void decide(int bc) {
           if (bc == 0) {
@@ -182,18 +312,148 @@ jobs:
           boolean buy = bc == 1;
           if (!sp.getBoolean("trade", false)) { note("Signal turned " + now + ". Trading is OFF, so I would close all and " + (buy ? "BUY" : "SELL") + "."); return; }
           note("Signal turned " + now + ". Closing all, then " + (buy ? "BUY" : "SELL") + ".");
-          if (!trade(buy)) sp.edit().putString("last", old).apply();
+          prev = old;
+          if (!trade(buy, sp.getBoolean("open", false))) sp.edit().putString("last", old).apply();
           }
-          boolean trade(boolean buy) {
-          if (!open("net.metaquotes.metatrader5")) return false;
-          h.postDelayed(() -> tapXY(0.5f, 0.906f), 4000);
-          h.postDelayed(() -> tapXY(0.936f, 0.288f), 6000);
-          h.postDelayed(() -> tap("Close All Positions"), 8000);
-          h.postDelayed(() -> tap("Charts"), 11000);
-          h.postDelayed(() -> tapXY(buy ? 0.833f : 0.139f, 0.125f), 13500);
-          h.postDelayed(() -> note((buy ? "BUY" : "SELL") + " tapped, not confirmed. Check MT5."), 15500);
-          h.postDelayed(() -> snap(), 17500);
+          static final String M5 = "net.metaquotes.metatrader5";
+          String prev = "";
+          boolean chartOk = true;
+          void until(java.util.function.BooleanSupplier ok, int ms, Runnable then, Runnable fail) {
+          long end = System.currentTimeMillis() + ms;
+          Runnable r = new Runnable() {
+          public void run() {
+          if (ok.getAsBoolean()) then.run();
+          else if (System.currentTimeMillis() > end) fail.run();
+          else h.postDelayed(this, 500);
+          }
+          };
+          h.post(r);
+          }
+          boolean has(String t) {
+          AccessibilityNodeInfo r = getRootInActiveWindow();
+          return r != null && !r.findAccessibilityNodeInfosByText(t).isEmpty();
+          }
+          boolean inPkg(String p) {
+          AccessibilityNodeInfo r = getRootInActiveWindow();
+          return r != null && p.equals(String.valueOf(r.getPackageName()));
+          }
+          boolean seen(AccessibilityNodeInfo n, String t) {
+          if (n == null) return false;
+          CharSequence x = n.getText();
+          if (x != null && x.toString().trim().equalsIgnoreCase(t)) return true;
+          CharSequence d = n.getContentDescription();
+          if (d != null && d.toString().trim().equalsIgnoreCase(t)) return true;
+          for (int i = 0; i < n.getChildCount(); i++) if (seen(n.getChild(i), t)) return true;
+          return false;
+          }
+          String want(String k) { return sp.getString(k, "").trim(); }
+          String tfLabel(String m) {
+          try { int v = Integer.parseInt(m); if (v >= 1440) return (v / 1440) + "D"; if (v >= 60 && v % 60 == 0) return (v / 60) + "h"; return v + "m"; }
+          catch (Exception e) { return m; }
+          }
+          boolean chartMatches() {
+          String s = want("sym"), t = want("tf");
+          if (!s.isEmpty() && !seen(getRootInActiveWindow(), s)) return false;
+          if (!t.isEmpty() && !seen(getRootInActiveWindow(), tfLabel(t))) return false;
           return true;
+          }
+          boolean anyM(AccessibilityNodeInfo n) {
+          if (n == null) return false;
+          CharSequence x = n.getText();
+          if (x != null && x.toString().matches("\\d+m")) return true;
+          for (int i = 0; i < n.getChildCount(); i++) if (anyM(n.getChild(i))) return true;
+          return false;
+          }
+          AccessibilityNodeInfo rowOf(AccessibilityNodeInfo n) {
+          if (n == null) return null;
+          for (int i = 0; i < n.getChildCount(); i++) { AccessibilityNodeInfo r = rowOf(n.getChild(i)); if (r != null) return r; }
+          return (n.isScrollable() && anyM(n)) ? n : null;
+          }
+          boolean clickText(String t) {
+          AccessibilityNodeInfo r = getRootInActiveWindow();
+          if (r == null) return false;
+          for (AccessibilityNodeInfo n : r.findAccessibilityNodeInfosByText(t)) {
+          CharSequence x = n.getText();
+          if (x == null || n.isEditable() || !x.toString().trim().equalsIgnoreCase(t)) continue;
+          AccessibilityNodeInfo c = n;
+          while (c != null && !c.isClickable()) c = c.getParent();
+          if (c != null) { c.performAction(AccessibilityNodeInfo.ACTION_CLICK); return true; }
+          }
+          return false;
+          }
+          boolean clickRow(String s, String e) {
+          AccessibilityNodeInfo r = getRootInActiveWindow();
+          if (r == null) return false;
+          for (AccessibilityNodeInfo n : r.findAccessibilityNodeInfosByText(s)) {
+          CharSequence x = n.getText();
+          if (x == null || n.isEditable() || !x.toString().trim().equalsIgnoreCase(s)) continue;
+          AccessibilityNodeInfo a = n;
+          for (int i = 0; i < 4 && a != null; i++, a = a.getParent()) {
+          if (e.isEmpty() || seen(a, e)) {
+          AccessibilityNodeInfo c = n;
+          while (c != null && !c.isClickable()) c = c.getParent();
+          if (c != null) { c.performAction(AccessibilityNodeInfo.ACTION_CLICK); return true; }
+          }
+          }
+          }
+          return false;
+          }
+          void pick(String label, int n) {
+          if (clickText(label)) { h.postDelayed(() -> { if (has("Interval")) performGlobalAction(GLOBAL_ACTION_BACK); }, 1500); return; }
+          if (n >= 6) { performGlobalAction(GLOBAL_ACTION_BACK); return; }
+          AccessibilityNodeInfo row = rowOf(getRootInActiveWindow());
+          if (row != null) row.performAction(n % 2 == 0 ? AccessibilityNodeInfo.ACTION_SCROLL_FORWARD : AccessibilityNodeInfo.ACTION_SCROLL_BACKWARD);
+          h.postDelayed(() -> pick(label, n + 1), 800);
+          }
+          void setTf(String t) {
+          if (t.isEmpty() || seen(getRootInActiveWindow(), tfLabel(t))) return;
+          tapXY(0.292f, 0.851f);
+          until(() -> has("Interval"), 5000, () -> pick(tfLabel(t), 0), () -> {});
+          }
+          void setSymbol(String s, Runnable then) {
+          tapXY(0.26f, 0.056f);
+          until(() -> has("Futures"), 6000, () -> {
+          AccessibilityNodeInfo root = getRootInActiveWindow();
+          AccessibilityNodeInfo f = root == null ? null : root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT);
+          if (f != null) {
+          android.os.Bundle a = new android.os.Bundle();
+          a.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, s);
+          f.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, a);
+          }
+          h.postDelayed(() -> {
+          if (!clickRow(s, want("exch"))) performGlobalAction(GLOBAL_ACTION_BACK);
+          h.postDelayed(then, 3000);
+          }, 2500);
+          }, () -> {});
+          }
+          void ensureChart() {
+          String s = want("sym"), t = want("tf");
+          if (!s.isEmpty() && !seen(getRootInActiveWindow(), s)) setSymbol(s, () -> setTf(t));
+          else setTf(t);
+          }
+          void abort(String why) {
+          sp.edit().putString("last", prev).apply();
+          note("STOPPED: " + why + " No new trade was opened. I will retry at the next check.");
+          }
+          boolean trade(boolean buy, boolean must) {
+          if (!open(M5)) return false;
+          until(() -> inPkg(M5), 30000, () -> h.postDelayed(() -> {
+          tapXY(0.5f, 0.906f);
+          until(() -> has("Positions"), 8000, () -> {
+          tapXY(0.936f, 0.288f);
+          until(() -> has("Close All Positions"), 6000, () -> {
+          if (tap("Close All Positions")) sp.edit().putBoolean("open", false).apply();
+          h.postDelayed(() -> enter(buy), 3000);
+          }, () -> { if (must) abort("Close All was not found."); else enter(buy); });
+          }, () -> { if (must) abort("The Trade tab was not found."); else enter(buy); });
+          }, 2500), () -> abort("MT5 did not open."));
+          return true;
+          }
+          void enter(boolean buy) {
+          tap("Charts");
+          h.postDelayed(() -> tapXY(buy ? 0.833f : 0.139f, 0.125f), 2500);
+          h.postDelayed(() -> { sp.edit().putBoolean("open", true).apply(); note((buy ? "BUY" : "SELL") + " tapped, not confirmed. Check MT5."); }, 4000);
+          h.postDelayed(() -> snap(), 6000);
           }
           void tapXY(float fx, float fy) {
           DisplayMetrics d = getResources().getDisplayMetrics();
@@ -201,15 +461,16 @@ jobs:
           p.moveTo(fx * d.widthPixels, fy * d.heightPixels);
           dispatchGesture(new GestureDescription.Builder().addStroke(new GestureDescription.StrokeDescription(p, 0, 60)).build(), null, null);
           }
-          void tap(String t) {
+          boolean tap(String t) {
           AccessibilityNodeInfo r = getRootInActiveWindow();
-          if (r == null) return;
+          if (r == null) return false;
           List<AccessibilityNodeInfo> l = r.findAccessibilityNodeInfosByText(t);
           for (AccessibilityNodeInfo n : l) {
           AccessibilityNodeInfo x = n;
           while (x != null && !x.isClickable()) x = x.getParent();
-          if (x != null) { x.performAction(AccessibilityNodeInfo.ACTION_CLICK); return; }
+          if (x != null) { x.performAction(AccessibilityNodeInfo.ACTION_CLICK); return true; }
           }
+          return false;
           }
           Bitmap grab(ScreenshotResult s) {
           HardwareBuffer hb = s.getHardwareBuffer();
@@ -245,7 +506,7 @@ jobs:
           else {
           int f = first;
           first = -1;
-          if (f == bc) decide(bc);
+          if (f == bc) { if (chartOk) decide(bc); else note("Wrong chart: expected " + want("sym") + " " + tfLabel(want("tf")) + ". Did nothing."); }
           else note("Two reads disagreed, so I skipped this check.");
           }
           }
