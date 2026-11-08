@@ -30,7 +30,7 @@ jobs:
           namespace 'com.eyes'
           signingConfigs { debug { storeFile file('debug.keystore'); storePassword 'android'; keyAlias 'androiddebugkey'; keyPassword 'android' } }
           compileSdk 34
-          defaultConfig { applicationId 'com.eyes'; minSdk 30; targetSdk 34; versionCode 8; versionName '8' }
+          defaultConfig { applicationId 'com.eyes'; minSdk 30; targetSdk 34; versionCode 10; versionName '10' }
           compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
           }
           EOF
@@ -180,6 +180,7 @@ jobs:
           });
           tog(ag, "Auto-check every 30 min", "auto");
           tog(ag, "Place trades", "trade");
+          tog(ag, "Auto-switch chart (experimental)", "switch");
           LinearLayout ch = card(root, "CHART");
           EditText sym = ed("Symbol on chart (e.g. BTCUSD)", sp.getString("sym", ""));
           EditText tfe = ed("Timeframe in minutes (e.g. 30)", sp.getString("tf", ""));
@@ -191,8 +192,9 @@ jobs:
           Button sv2 = btn("Save chart settings", false);
           ch.addView(sv2, lp());
           sv2.setOnClickListener(v -> {
-          sp.edit().putString("sym", sym.getText().toString().trim()).putString("tf", tfe.getText().toString().trim()).putString("exch", exe.getText().toString().trim()).apply();
+          sp.edit().putString("sym", sym.getText().toString().trim()).putString("tf", tfe.getText().toString().trim()).putString("exch", exe.getText().toString().trim()).commit();
           out.setText("Saved: " + sym.getText() + " " + tfe.getText() + " min");
+          android.widget.Toast.makeText(this, "Saved: " + sym.getText() + " " + tfe.getText() + " min", android.widget.Toast.LENGTH_LONG).show();
           refresh.run();
           });
           LinearLayout tl = card(root, "TOOLS");
@@ -205,6 +207,12 @@ jobs:
           tst.setOnClickListener(v -> {
           if (EyesService.me == null) out.setText("Eyes is off. Enable it in Accessibility first.");
           else { out.setText("Testing MT5..."); EyesService.me.prev = EyesService.me.sp.getString("last", ""); EyesService.me.trade(true, false); }
+          });
+          Button dg = btn("Diagnose chart (saves a text file)", false);
+          tl.addView(dg, lp());
+          dg.setOnClickListener(v -> {
+          if (EyesService.me == null) out.setText("Eyes is off. Enable it in Accessibility first.");
+          else { out.setText("Diagnosing..."); EyesService.me.diagnose(); }
           });
           Button fg = btn("Forget last signal", false);
           tl.addView(fg, lp());
@@ -291,10 +299,12 @@ jobs:
           tries = 0;
           first = -1;
           chartOk = true;
-          h.postDelayed(() -> chartOk = chartMatches(), 44000);
           h.postDelayed(() -> tap("Chart"), 8000);
-          h.postDelayed(() -> ensureChart(), 11000);
-          h.postDelayed(() -> shot(), 47000);
+          h.postDelayed(() -> dismissAd(), 14000);
+          h.postDelayed(() -> dismissAd(), 28000);
+          boolean sw = sp.getBoolean("switch", false);
+          if (sw) { h.postDelayed(() -> chartOk = chartMatches(), 44000); h.postDelayed(() -> ensureChart(), 11000); }
+          h.postDelayed(() -> shot(), sw ? 47000 : 35000);
           }
           void decide(int bc) {
           if (bc == 0) {
@@ -430,6 +440,47 @@ jobs:
           String s = want("sym"), t = want("tf");
           if (!s.isEmpty() && !seen(getRootInActiveWindow(), s)) setSymbol(s, () -> setTf(t));
           else setTf(t);
+          }
+          void dump(AccessibilityNodeInfo n, StringBuilder sb, int d) {
+          if (n == null || d > 40) return;
+          CharSequence x = n.getText(), c = n.getContentDescription();
+          if (x != null || c != null) {
+          android.graphics.Rect r = new android.graphics.Rect();
+          n.getBoundsInScreen(r);
+          sb.append(r.left).append(',').append(r.top).append(n.isClickable() ? " C " : " - ").append(x == null ? "" : x).append(" | ").append(c == null ? "" : c).append('\n');
+          }
+          for (int i = 0; i < n.getChildCount(); i++) dump(n.getChild(i), sb, d + 1);
+          }
+          void saveText(String name, String text) {
+          try {
+          android.content.ContentValues v = new android.content.ContentValues();
+          v.put(android.provider.MediaStore.MediaColumns.DISPLAY_NAME, name);
+          v.put(android.provider.MediaStore.MediaColumns.MIME_TYPE, "text/plain");
+          v.put(android.provider.MediaStore.MediaColumns.RELATIVE_PATH, "Download/Eyes");
+          android.net.Uri u = getContentResolver().insert(android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI, v);
+          java.io.OutputStream o = getContentResolver().openOutputStream(u);
+          o.write(text.getBytes());
+          o.close();
+          } catch (Exception e) {}
+          }
+          void diagnose() {
+          if (!open("com.tradingview.tradingviewapp")) return;
+          h.postDelayed(() -> tap("Chart"), 8000);
+          h.postDelayed(() -> {
+          StringBuilder sb = new StringBuilder("== chart screen ==\n");
+          dump(getRootInActiveWindow(), sb, 0);
+          tapXY(0.292f, 0.851f);
+          h.postDelayed(() -> {
+          sb.append("== after tapping the timeframe button ==\n");
+          dump(getRootInActiveWindow(), sb, 0);
+          saveText("eyes_screen_" + System.currentTimeMillis() + ".txt", sb.toString());
+          note("Saved a text file in Download/Eyes. Send it to Claude.");
+          }, 3500);
+          }, 14000);
+          }
+          void dismissAd() {
+          if (!has("Explore our plans")) return;
+          if (!clickText("Close")) tapXY(0.917f, 0.631f);
           }
           void abort(String why) {
           sp.edit().putString("last", prev).apply();
