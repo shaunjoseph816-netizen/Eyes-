@@ -30,7 +30,7 @@ jobs:
           namespace 'com.eyes'
           signingConfigs { debug { storeFile file('debug.keystore'); storePassword 'android'; keyAlias 'androiddebugkey'; keyPassword 'android' } }
           compileSdk 34
-          defaultConfig { applicationId 'com.eyes'; minSdk 30; targetSdk 34; versionCode 13; versionName '13' }
+          defaultConfig { applicationId 'com.eyes'; minSdk 30; targetSdk 34; versionCode 14; versionName '14' }
           compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
           }
           EOF
@@ -50,10 +50,10 @@ jobs:
           EOF
           cat > app/src/main/res/drawable/icon.xml <<'EOF'
           <vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
-          <path android:fillColor="#0A0E14" android:pathData="M0,0h108v108h-108z"/>
-          <path android:fillColor="#D4AF37" android:pathData="M30,38h8v32h-8z M33,30h2v8h-2z M33,70h2v8h-2z"/>
-          <path android:fillColor="#00C896" android:pathData="M50,28h8v38h-8z M53,20h2v8h-2z M53,66h2v10h-2z"/>
-          <path android:fillColor="#D4AF37" android:pathData="M70,44h8v30h-8z M73,36h2v8h-2z M73,74h2v8h-2z"/>
+          <path android:fillColor="#04050C" android:pathData="M0,0h108v108h-108z"/>
+          <path android:fillColor="#4F8CFF" android:pathData="M30,38h8v32h-8z M33,30h2v8h-2z M33,70h2v8h-2z"/>
+          <path android:fillColor="#19E3A1" android:pathData="M50,28h8v38h-8z M53,20h2v8h-2z M53,66h2v10h-2z"/>
+          <path android:fillColor="#A855F7" android:pathData="M70,44h8v30h-8z M73,36h2v8h-2z M73,74h2v8h-2z"/>
           </vector>
           EOF
           cat > app/src/main/res/values/strings.xml <<'EOF'
@@ -76,7 +76,7 @@ jobs:
           static TextView jv;
           SharedPreferences sp;
           TextView sigBig, sigSub;
-          static final int BG = 0xFF0A0E14, CARD = 0xFF131A24, GOLD = 0xFFD4AF37, UP = 0xFF00C896, DN = 0xFFFF4D5E, TX = 0xFFE8ECF2, MUT = 0xFF8794A6, KEY = 0xFF1B2430;
+          static final int BG = 0xFF04050C, CARD = 0xFF0A1030, GOLD = 0xFF4F8CFF, VIO = 0xFFA855F7, UP = 0xFF19E3A1, DN = 0xFFFF3B5C, TX = 0xFFEAF2FF, MUT = 0xFF7F8FB5, KEY = 0xFF10184A;
           int dp(int v) { return (int) (v * getResources().getDisplayMetrics().density); }
           GradientDrawable box(int fill, int stroke, int r) {
           GradientDrawable g = new GradientDrawable();
@@ -97,7 +97,7 @@ jobs:
           LinearLayout c = new LinearLayout(this);
           c.setOrientation(LinearLayout.VERTICAL);
           c.setPadding(dp(16), dp(14), dp(16), dp(16));
-          c.setBackground(box(CARD, 0x44D4AF37, 18));
+          c.setBackground(box(CARD, 0xAA3B6BFF, 6));
           LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(-1, -2);
           p.topMargin = dp(14);
           root.addView(c, p);
@@ -117,7 +117,7 @@ jobs:
           b.setTypeface(Typeface.DEFAULT_BOLD);
           b.setStateListAnimator(null);
           b.setTextColor(primary ? BG : TX);
-          b.setBackground(box(primary ? GOLD : KEY, primary ? 0 : 0x33FFFFFF, 14));
+          b.setBackground(box(primary ? GOLD : KEY, primary ? 0xFFA855F7 : 0x663B6BFF, 6));
           return b;
           }
           EditText ed(String hint, String val) {
@@ -129,14 +129,14 @@ jobs:
           e.setSingleLine(true);
           e.setTextSize(15);
           e.setPadding(dp(12), dp(10), dp(12), dp(10));
-          e.setBackground(box(0xFF0E141C, 0x33FFFFFF, 12));
+          e.setBackground(box(0xFF070B22, 0x663B6BFF, 6));
           return e;
           }
           void paint(Button b, String name, String key) {
           boolean on = sp.getBoolean(key, false);
           b.setText(name + "   " + (on ? "ON" : "OFF"));
           b.setTextColor(on ? BG : TX);
-          b.setBackground(box(on ? (key.equals("trade") ? DN : GOLD) : KEY, on ? 0 : 0x33FFFFFF, 14));
+          b.setBackground(box(on ? (key.equals("trade") ? DN : GOLD) : KEY, on ? 0xFFA855F7 : 0x663B6BFF, 6));
           }
           void tog(LinearLayout p, String name, String key) {
           Button b = btn("", false);
@@ -172,9 +172,14 @@ jobs:
           root.setOrientation(LinearLayout.VERTICAL);
           root.setPadding(dp(18), dp(44), dp(18), dp(28));
           sv.addView(root);
-          root.addView(tv("EYES", 34, GOLD, true));
-          root.addView(tv("AI FOREX AGENT  \u00B7  DISCIPLINED. AUTOMATIC.", 11, MUT, false));
-          LinearLayout sig = card(root, "CURRENT SIGNAL");
+          TextView sys = tv("[ SYSTEM ]", 11, GOLD, true);
+          sys.setLetterSpacing(0.3f);
+          root.addView(sys);
+          TextView ttl = tv("EYES", 38, TX, true);
+          ttl.setLetterSpacing(0.25f);
+          root.addView(ttl);
+          root.addView(tv("ARISE  \u00B7  MARKET HUNTER  \u00B7  DISCIPLINE. AUTOMATIC.", 11, MUT, false));
+          LinearLayout sig = card(root, "SYSTEM  \u00B7  SIGNAL");
           sigBig = tv("WAITING", 42, TX, true);
           sigSub = tv("", 13, MUT, false);
           sig.addView(sigBig);
@@ -183,14 +188,14 @@ jobs:
           String last = sp.getString("last", "");
           if (last.equals("GREEN")) { sigBig.setText("BUY \u25B2"); sigBig.setTextColor(UP); }
           else if (last.equals("RED")) { sigBig.setText("SELL \u25BC"); sigBig.setTextColor(DN); }
-          else { sigBig.setText("WAITING"); sigBig.setTextColor(TX); }
+          else { sigBig.setText("AWAITING SIGNAL"); sigBig.setTextColor(TX); }
           String pair = sp.getString("sym", "").isEmpty() ? "any chart" : sp.getString("sym", "");
           String tf = sp.getString("tf", "").isEmpty() ? "" : "  \u00B7  " + sp.getString("tf", "") + "m";
           sigSub.setText(pair + tf + "  \u00B7  " + (sp.getBoolean("trade", false) ? "TRADING LIVE" : "WATCH ONLY"));
           if (jv != null) jv.setText(journalText());
           };
-          LinearLayout ag = card(root, "AGENT");
-          Button chk = btn("CHECK SIGNAL NOW", true);
+          LinearLayout ag = card(root, "SYSTEM  \u00B7  HUNTER");
+          Button chk = btn("ARISE  \u2014  CHECK SIGNAL", true);
           ag.addView(chk, lp());
           chk.setOnClickListener(v -> {
           if (EyesService.me == null) out.setText("Eyes is off. Enable it in Accessibility first.");
@@ -199,7 +204,7 @@ jobs:
           tog(ag, "Auto-check every 30 min", "auto");
           tog(ag, "Place trades", "trade");
           tog(ag, "Auto-switch chart (experimental)", "switch");
-          LinearLayout ch = card(root, "CHART");
+          LinearLayout ch = card(root, "SYSTEM  \u00B7  CHART");
           EditText sym = ed("Symbol on chart (e.g. BTCUSD)", sp.getString("sym", ""));
           EditText tfe = ed("Timeframe in minutes (e.g. 30)", sp.getString("tf", ""));
           tfe.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
@@ -215,7 +220,7 @@ jobs:
           android.widget.Toast.makeText(this, "Saved: " + sym.getText() + " " + tfe.getText() + " min", android.widget.Toast.LENGTH_LONG).show();
           refresh.run();
           });
-          LinearLayout tl = card(root, "TOOLS");
+          LinearLayout tl = card(root, "SYSTEM  \u00B7  TOOLS");
           Button acc = btn("Enable Eyes in Accessibility", false);
           tl.addView(acc, lp());
           acc.setOnClickListener(v -> startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)));
@@ -235,7 +240,7 @@ jobs:
           Button fg = btn("Forget last signal", false);
           tl.addView(fg, lp());
           fg.setOnClickListener(v -> { sp.edit().remove("last").remove("open").apply(); refresh.run(); });
-          LinearLayout fd = card(root, "ACTIVITY");
+          LinearLayout fd = card(root, "QUEST LOG  \u00B7  TRADE JOURNAL");
           out = tv(EyesService.last, 14, TX, false);
           out.setTypeface(Typeface.MONOSPACE);
           fd.addView(out);
@@ -569,14 +574,6 @@ jobs:
           AccessibilityNodeInfo n = findPill(getRootInActiveWindow(), top);
           return n == null ? "?" : n.getText().toString().trim();
           }
-          void tradeTab() {
-          int top = (int) (getResources().getDisplayMetrics().heightPixels * 0.84);
-          AccessibilityNodeInfo n = findPill(getRootInActiveWindow(), top);
-          AccessibilityNodeInfo c = n;
-          while (c != null && !c.isClickable()) c = c.getParent();
-          if (c != null && c.performAction(AccessibilityNodeInfo.ACTION_CLICK)) return;
-          tapXY(0.5f, 0.885f);
-          }
           void journal(String what, String val) {
           String line = new java.text.SimpleDateFormat("MM-dd HH:mm", java.util.Locale.US).format(new java.util.Date()) + "  " + what + "  " + val;
           String old = sp.getString("journal", "");
@@ -613,27 +610,23 @@ jobs:
           if (st == 0) { if (round > 0) journal("CLOSED", sp.getString("pnl", "?")); enter(buy); return; }
           if (round >= 2) { abort("A trade is still open after trying to close it."); return; }
           if (round == 0) sp.edit().putString("pnl", pillText()).apply();
-          closeAll(() -> toCharts(() -> checkFlat(buy, round + 1)), () -> abort("I could not reach Close All in MT5."));
+          closeAll(() -> toCharts(() -> checkFlat(buy, round + 1)), () -> abort("I could not reach the trades screen in MT5 (last tap " + tapInfo + ")."));
           });
           }
-          void closeAll(Runnable ok, Runnable fail) { goTrade(0, ok, fail); }
-          void goTrade(int n, Runnable ok, Runnable fail) {
-          tapXY(0.5f, 0.885f);
+          void closeAll(Runnable ok, Runnable fail) { toTradeTab(0, ok, fail); }
+          void toTradeTab(int n, Runnable ok, Runnable fail) {
+          tapXY(0.507f, 0.89f);
           h.postDelayed(() -> shotBmp(bm -> {
-          if (bm != null && tradeScreen(bm)) openMenu(ok, fail);
-          else if (n < 2) goTrade(n + 1, ok, fail);
+          if (bm != null && tradeScreen(bm)) { tapXY(0.936f, 0.288f); h.postDelayed(() -> pressCloseAll(0, ok), 1500); }
+          else if (n < 3) toTradeTab(n + 1, ok, fail);
           else fail.run();
           }), 2000);
           }
-          void openMenu(Runnable ok, Runnable fail) {
-          tapXY(0.936f, 0.288f);
-          until(() -> has("Close All Positions"), 4000, () -> { tap("Close All Positions"); h.postDelayed(ok, 3000); }, () -> {
-          tapXY(0.936f, 0.288f);
-          until(() -> has("Close All Positions"), 4000, () -> { tap("Close All Positions"); h.postDelayed(ok, 3000); }, () -> {
+          void pressCloseAll(int n, Runnable ok) {
+          if (has("Close All Positions")) { tap("Close All Positions"); h.postDelayed(ok, 3000); return; }
+          if (n == 0) { tapXY(0.936f, 0.288f); h.postDelayed(() -> pressCloseAll(1, ok), 1500); return; }
           tapXY(0.2f, 0.836f);
           h.postDelayed(ok, 3000);
-          });
-          });
           }
           void enter(boolean buy) {
           tapXY(buy ? 0.833f : 0.139f, 0.125f);
@@ -642,10 +635,13 @@ jobs:
           else { sp.edit().putString("last", prev).apply(); note((buy ? "BUY" : "SELL") + " tapped but I could not confirm it. I will retry at the next check. Look at MT5."); }
           }), 4000);
           }
+          String tapInfo = "";
           void tapXY(float fx, float fy) {
-          DisplayMetrics d = getResources().getDisplayMetrics();
+          android.graphics.Rect b = getSystemService(android.view.WindowManager.class).getMaximumWindowMetrics().getBounds();
+          float x = fx * b.width(), y = fy * b.height();
+          tapInfo = (int) x + "," + (int) y + " of " + b.width() + "x" + b.height();
           Path p = new Path();
-          p.moveTo(fx * d.widthPixels, fy * d.heightPixels);
+          p.moveTo(x, y);
           dispatchGesture(new GestureDescription.Builder().addStroke(new GestureDescription.StrokeDescription(p, 0, 60)).build(), null, null);
           }
           boolean tap(String t) {
