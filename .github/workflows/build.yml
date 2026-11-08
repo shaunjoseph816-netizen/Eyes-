@@ -30,7 +30,7 @@ jobs:
           namespace 'com.eyes'
           signingConfigs { debug { storeFile file('debug.keystore'); storePassword 'android'; keyAlias 'androiddebugkey'; keyPassword 'android' } }
           compileSdk 34
-          defaultConfig { applicationId 'com.eyes'; minSdk 30; targetSdk 34; versionCode 11; versionName '11' }
+          defaultConfig { applicationId 'com.eyes'; minSdk 30; targetSdk 34; versionCode 12; versionName '12' }
           compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
           }
           EOF
@@ -73,6 +73,7 @@ jobs:
           public class MainActivity extends Activity {
           static TextView out;
           static Runnable refresh;
+          static TextView jv;
           SharedPreferences sp;
           TextView sigBig, sigSub;
           static final int BG = 0xFF0A0E14, CARD = 0xFF131A24, GOLD = 0xFFD4AF37, UP = 0xFF00C896, DN = 0xFFFF4D5E, TX = 0xFFE8ECF2, MUT = 0xFF8794A6, KEY = 0xFF1B2430;
@@ -143,6 +144,22 @@ jobs:
           paint(b, name, key);
           b.setOnClickListener(v -> { sp.edit().putBoolean(key, !sp.getBoolean(key, false)).apply(); paint(b, name, key); refresh.run(); });
           }
+          String journalText() {
+          String j = sp.getString("journal", "");
+          if (j.isEmpty()) return "No trades logged yet.";
+          String[] a = j.split("\n");
+          int n = 0, w = 0;
+          double net = 0;
+          for (String l : a) {
+          if (l.contains("CLOSED")) {
+          String[] p = l.trim().split("\\s+");
+          try { double v = Double.parseDouble(p[p.length - 1]); n++; net += v; if (v > 0) w++; } catch (Exception e) {}
+          }
+          }
+          StringBuilder sb = new StringBuilder("Closed: " + n + "   Wins: " + w + "   Net: " + String.format(java.util.Locale.US, "%+.2f", net) + "\n");
+          for (int i = Math.max(0, a.length - 6); i < a.length; i++) sb.append(a[i]).append('\n');
+          return sb.toString().trim();
+          }
           protected void onCreate(Bundle b0) {
           super.onCreate(b0);
           sp = getSharedPreferences("eyes", 0);
@@ -170,6 +187,7 @@ jobs:
           String pair = sp.getString("sym", "").isEmpty() ? "any chart" : sp.getString("sym", "");
           String tf = sp.getString("tf", "").isEmpty() ? "" : "  \u00B7  " + sp.getString("tf", "") + "m";
           sigSub.setText(pair + tf + "  \u00B7  " + (sp.getBoolean("trade", false) ? "TRADING LIVE" : "WATCH ONLY"));
+          if (jv != null) jv.setText(journalText());
           };
           LinearLayout ag = card(root, "AGENT");
           Button chk = btn("CHECK SIGNAL NOW", true);
@@ -221,6 +239,10 @@ jobs:
           out = tv(EyesService.last, 14, TX, false);
           out.setTypeface(Typeface.MONOSPACE);
           fd.addView(out);
+          jv = tv("", 12, MUT, false);
+          jv.setTypeface(Typeface.MONOSPACE);
+          jv.setPadding(0, dp(10), 0, 0);
+          fd.addView(jv);
           TextView ft = tv("Automated trading carries risk. Always test on a demo account first.", 11, MUT, false);
           ft.setPadding(0, dp(16), 0, 0);
           root.addView(ft);
@@ -492,8 +514,41 @@ jobs:
           return true;
           }
           void toCharts(Runnable then) {
-          tap("Charts");
+          if (!(seen(getRootInActiveWindow(), "SELL") && seen(getRootInActiveWindow(), "BUY"))) tap("Charts");
           h.postDelayed(then, 2000);
+          }
+          AccessibilityNodeInfo findPill(AccessibilityNodeInfo n, int top) {
+          if (n == null) return null;
+          CharSequence x = n.getText();
+          if (x != null && x.toString().trim().matches("-?\\d+(\\.\\d+)?")) {
+          android.graphics.Rect b = new android.graphics.Rect();
+          n.getBoundsInScreen(b);
+          if (b.top > top) return n;
+          }
+          for (int i = 0; i < n.getChildCount(); i++) { AccessibilityNodeInfo f = findPill(n.getChild(i), top); if (f != null) return f; }
+          return null;
+          }
+          String pillText() {
+          int top = (int) (getResources().getDisplayMetrics().heightPixels * 0.84);
+          AccessibilityNodeInfo n = findPill(getRootInActiveWindow(), top);
+          return n == null ? "?" : n.getText().toString().trim();
+          }
+          void tradeTab() {
+          int top = (int) (getResources().getDisplayMetrics().heightPixels * 0.84);
+          AccessibilityNodeInfo n = findPill(getRootInActiveWindow(), top);
+          AccessibilityNodeInfo c = n;
+          while (c != null && !c.isClickable()) c = c.getParent();
+          if (c != null && c.performAction(AccessibilityNodeInfo.ACTION_CLICK)) return;
+          tapXY(0.5f, 0.885f);
+          }
+          void journal(String what, String val) {
+          String line = new java.text.SimpleDateFormat("MM-dd HH:mm", java.util.Locale.US).format(new java.util.Date()) + "  " + what + "  " + val;
+          String old = sp.getString("journal", "");
+          String[] a = old.isEmpty() ? new String[0] : old.split("\n");
+          StringBuilder sb = new StringBuilder();
+          for (int i = Math.max(0, a.length - 59); i < a.length; i++) sb.append(a[i]).append('\n');
+          sb.append(line);
+          sp.edit().putString("journal", sb.toString()).apply();
           }
           int pillState(Bitmap bm) {
           int w = bm.getWidth(), h2 = bm.getHeight();
@@ -519,25 +574,30 @@ jobs:
           void checkFlat(boolean buy, int round) {
           pillNow(st -> {
           if (st < 0) { abort("I could not read MT5 to see if a trade is open."); return; }
-          if (st == 0) { enter(buy); return; }
+          if (st == 0) { if (round > 0) journal("CLOSED", sp.getString("pnl", "?")); enter(buy); return; }
           if (round >= 2) { abort("A trade is still open after trying to close it."); return; }
+          if (round == 0) sp.edit().putString("pnl", pillText()).apply();
           closeAll(() -> toCharts(() -> checkFlat(buy, round + 1)), () -> abort("I could not reach Close All in MT5."));
           });
           }
           void closeAll(Runnable ok, Runnable fail) {
-          tapXY(0.5f, 0.906f);
-          until(() -> has("Positions"), 8000, () -> {
+          tradeTab();
+          until(() -> has("Positions"), 4000, () -> openMenu(ok, fail), () -> {
+          tradeTab();
+          until(() -> has("Positions"), 5000, () -> openMenu(ok, fail), fail);
+          });
+          }
+          void openMenu(Runnable ok, Runnable fail) {
           tapXY(0.936f, 0.288f);
-          until(() -> has("Close All Positions"), 6000, () -> {
-          tap("Close All Positions");
-          h.postDelayed(ok, 3000);
-          }, fail);
-          }, fail);
+          until(() -> has("Close All Positions"), 4000, () -> { tap("Close All Positions"); h.postDelayed(ok, 3000); }, () -> {
+          tapXY(0.936f, 0.288f);
+          until(() -> has("Close All Positions"), 4000, () -> { tap("Close All Positions"); h.postDelayed(ok, 3000); }, fail);
+          });
           }
           void enter(boolean buy) {
           tapXY(buy ? 0.833f : 0.139f, 0.125f);
           h.postDelayed(() -> pillNow(st -> {
-          if (st == 1) { sp.edit().putBoolean("open", true).apply(); note((buy ? "BUY" : "SELL") + " placed and confirmed."); }
+          if (st == 1) { sp.edit().putBoolean("open", true).apply(); journal(buy ? "BUY opened" : "SELL opened", ""); note((buy ? "BUY" : "SELL") + " placed and confirmed."); }
           else note((buy ? "BUY" : "SELL") + " tapped but I could not confirm it. Check MT5.");
           }), 3000);
           }
