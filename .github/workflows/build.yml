@@ -30,7 +30,7 @@ jobs:
           namespace 'com.eyes'
           signingConfigs { debug { storeFile file('debug.keystore'); storePassword 'android'; keyAlias 'androiddebugkey'; keyPassword 'android' } }
           compileSdk 34
-          defaultConfig { applicationId 'com.eyes'; minSdk 30; targetSdk 34; versionCode 10; versionName '10' }
+          defaultConfig { applicationId 'com.eyes'; minSdk 30; targetSdk 34; versionCode 11; versionName '11' }
           compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
           }
           EOF
@@ -488,23 +488,58 @@ jobs:
           }
           boolean trade(boolean buy, boolean must) {
           if (!open(M5)) return false;
-          until(() -> inPkg(M5), 30000, () -> h.postDelayed(() -> {
+          until(() -> inPkg(M5), 30000, () -> h.postDelayed(() -> toCharts(() -> checkFlat(buy, 0)), 2500), () -> abort("MT5 did not open."));
+          return true;
+          }
+          void toCharts(Runnable then) {
+          tap("Charts");
+          h.postDelayed(then, 2000);
+          }
+          int pillState(Bitmap bm) {
+          int w = bm.getWidth(), h2 = bm.getHeight();
+          int x0 = (int) (w * 0.453), x1 = (int) (w * 0.55), y0 = (int) (h2 * 0.8975), y1 = (int) (h2 * 0.9125);
+          long r = 0, b = 0;
+          int n = 0;
+          for (int y = y0; y < y1; y++) {
+          for (int x = x0; x < x1; x++) {
+          int c = bm.getPixel(x, y), cr = (c >> 16) & 255, cg = (c >> 8) & 255, cb = c & 255;
+          if (cr + cg + cb < 330) { r += cr; b += cb; n++; }
+          }
+          }
+          if (n < 100) return -1;
+          long dr = r / n, db = b / n;
+          return ((db - dr) > 22 || (dr - db) > 18) ? 1 : 0;
+          }
+          void pillNow(java.util.function.IntConsumer cb) {
+          takeScreenshot(Display.DEFAULT_DISPLAY, getMainExecutor(), new TakeScreenshotCallback() {
+          public void onSuccess(ScreenshotResult s) { Bitmap bm = grab(s); save(bm, "mt5"); cb.accept(pillState(bm)); }
+          public void onFailure(int c) { cb.accept(-1); }
+          });
+          }
+          void checkFlat(boolean buy, int round) {
+          pillNow(st -> {
+          if (st < 0) { abort("I could not read MT5 to see if a trade is open."); return; }
+          if (st == 0) { enter(buy); return; }
+          if (round >= 2) { abort("A trade is still open after trying to close it."); return; }
+          closeAll(() -> toCharts(() -> checkFlat(buy, round + 1)), () -> abort("I could not reach Close All in MT5."));
+          });
+          }
+          void closeAll(Runnable ok, Runnable fail) {
           tapXY(0.5f, 0.906f);
           until(() -> has("Positions"), 8000, () -> {
           tapXY(0.936f, 0.288f);
           until(() -> has("Close All Positions"), 6000, () -> {
-          if (tap("Close All Positions")) sp.edit().putBoolean("open", false).apply();
-          h.postDelayed(() -> enter(buy), 3000);
-          }, () -> { if (must) abort("Close All was not found."); else enter(buy); });
-          }, () -> { if (must) abort("The Trade tab was not found."); else enter(buy); });
-          }, 2500), () -> abort("MT5 did not open."));
-          return true;
+          tap("Close All Positions");
+          h.postDelayed(ok, 3000);
+          }, fail);
+          }, fail);
           }
           void enter(boolean buy) {
-          tap("Charts");
-          h.postDelayed(() -> tapXY(buy ? 0.833f : 0.139f, 0.125f), 2500);
-          h.postDelayed(() -> { sp.edit().putBoolean("open", true).apply(); note((buy ? "BUY" : "SELL") + " tapped, not confirmed. Check MT5."); }, 4000);
-          h.postDelayed(() -> snap(), 6000);
+          tapXY(buy ? 0.833f : 0.139f, 0.125f);
+          h.postDelayed(() -> pillNow(st -> {
+          if (st == 1) { sp.edit().putBoolean("open", true).apply(); note((buy ? "BUY" : "SELL") + " placed and confirmed."); }
+          else note((buy ? "BUY" : "SELL") + " tapped but I could not confirm it. Check MT5.");
+          }), 3000);
           }
           void tapXY(float fx, float fy) {
           DisplayMetrics d = getResources().getDisplayMetrics();
