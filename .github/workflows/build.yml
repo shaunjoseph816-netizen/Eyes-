@@ -30,7 +30,7 @@ jobs:
           namespace 'com.eyes'
           signingConfigs { debug { storeFile file('debug.keystore'); storePassword 'android'; keyAlias 'androiddebugkey'; keyPassword 'android' } }
           compileSdk 34
-          defaultConfig { applicationId 'com.eyes'; minSdk 30; targetSdk 34; versionCode 15; versionName '15' }
+          defaultConfig { applicationId 'com.eyes'; minSdk 30; targetSdk 34; versionCode 16; versionName '16' }
           compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
           }
           EOF
@@ -56,8 +56,257 @@ jobs:
           <path android:fillColor="#A855F7" android:pathData="M70,44h8v30h-8z M73,36h2v8h-2z M73,74h2v8h-2z"/>
           </vector>
           EOF
+          cat > app/src/main/res/drawable/hero.xml <<'EOF'
+          <vector xmlns:android="http://schemas.android.com/apk/res/android" xmlns:aapt="http://schemas.android.com/aapt" android:width="360dp" android:height="240dp" android:viewportWidth="360" android:viewportHeight="240">
+          <path android:pathData="M0,0h360v240h-360z"><aapt:attr name="android:fillColor"><gradient android:type="linear" android:startX="0" android:startY="0" android:endX="0" android:endY="240"><item android:offset="0" android:color="#FF0B0724"/><item android:offset="0.55" android:color="#FF1B1352"/><item android:offset="1" android:color="#FF05060F"/></gradient></aapt:attr></path>
+          <path android:pathData="M30,0H330V230H30Z"><aapt:attr name="android:fillColor"><gradient android:type="radial" android:centerX="180" android:centerY="100" android:gradientRadius="125"><item android:offset="0" android:color="#BFB06BFF"/><item android:offset="0.55" android:color="#475B7CFF"/><item android:offset="1" android:color="#004F8CFF"/></gradient></aapt:attr></path>
+          <path android:pathData="M0,50H360" android:strokeColor="#4F8CFF" android:strokeWidth="0.6" android:strokeAlpha="0.14"/>
+          <path android:pathData="M0,90H360" android:strokeColor="#4F8CFF" android:strokeWidth="0.6" android:strokeAlpha="0.14"/>
+          <path android:pathData="M0,130H360" android:strokeColor="#4F8CFF" android:strokeWidth="0.6" android:strokeAlpha="0.14"/>
+          <path android:pathData="M0,170H360" android:strokeColor="#4F8CFF" android:strokeWidth="0.6" android:strokeAlpha="0.14"/>
+          <path android:pathData="M18.2,162.2710583952324h1.6v46.31499249377091h-1.6z" android:fillColor="#19E3A1" android:fillAlpha="0.55"/>
+          <path android:pathData="M14,171.2710583952324h9.8v28.31499249377091h-9.8z" android:fillColor="#19E3A1" android:fillAlpha="0.5"/>
+          <path android:pathData="M39.2,161.76837623718728h1.6v44.24430154219501h-1.6z" android:fillColor="#19E3A1" android:fillAlpha="0.55"/>
+          <path android:pathData="M35,170.76837623718728h9.8v26.24430154219501h-9.8z" android:fillColor="#19E3A1" android:fillAlpha="0.5"/>
+          <path android:pathData="M60.2,148.2328621593984h1.6v46.92246623469774h-1.6z" android:fillColor="#19E3A1" android:fillAlpha="0.55"/>
+          <path android:pathData="M56,157.2328621593984h9.8v28.922466234697733h-9.8z" android:fillColor="#19E3A1" android:fillAlpha="0.5"/>
+          <path android:pathData="M81.2,137.98492909679868h1.6v45.26199005891972h-1.6z" android:fillColor="#FF3B5C" android:fillAlpha="0.55"/>
+          <path android:pathData="M77,146.98492909679868h9.8v27.26199005891972h-9.8z" android:fillColor="#FF3B5C" android:fillAlpha="0.45"/>
+          <path android:pathData="M102.2,133.03584704488213h1.6v51.44549119543896h-1.6z" android:fillColor="#19E3A1" android:fillAlpha="0.55"/>
+          <path android:pathData="M98,142.03584704488213h9.8v33.44549119543896h-9.8z" android:fillColor="#19E3A1" android:fillAlpha="0.5"/>
+          <path android:pathData="M123.2,124.79206758588086h1.6v40.67482777773956h-1.6z" android:fillColor="#19E3A1" android:fillAlpha="0.55"/>
+          <path android:pathData="M119,133.79206758588086h9.8v22.67482777773956h-9.8z" android:fillColor="#19E3A1" android:fillAlpha="0.5"/>
+          <path android:pathData="M144.2,111.98195657186312h1.6v51.81217975607791h-1.6z" android:fillColor="#19E3A1" android:fillAlpha="0.55"/>
+          <path android:pathData="M140,120.98195657186312h9.8v33.81217975607791h-9.8z" android:fillColor="#19E3A1" android:fillAlpha="0.5"/>
+          <path android:pathData="M165.2,120.46057809042657h1.6v34.92136740013662h-1.6z" android:fillColor="#FF3B5C" android:fillAlpha="0.55"/>
+          <path android:pathData="M161,129.46057809042657h9.8v16.921367400136614h-9.8z" android:fillColor="#FF3B5C" android:fillAlpha="0.45"/>
+          <path android:pathData="M186.2,106.57398545720409h1.6v55.22467118476247h-1.6z" android:fillColor="#19E3A1" android:fillAlpha="0.55"/>
+          <path android:pathData="M182,115.57398545720409h9.8v37.22467118476247h-9.8z" android:fillColor="#19E3A1" android:fillAlpha="0.5"/>
+          <path android:pathData="M207.2,99.27588065204182h1.6v47.54237950072856h-1.6z" android:fillColor="#19E3A1" android:fillAlpha="0.55"/>
+          <path android:pathData="M203,108.27588065204182h9.8v29.542379500728558h-9.8z" android:fillColor="#19E3A1" android:fillAlpha="0.5"/>
+          <path android:pathData="M228.2,92.72492103523629h1.6v34.33001621289131h-1.6z" android:fillColor="#FF3B5C" android:fillAlpha="0.55"/>
+          <path android:pathData="M224,101.72492103523629h9.8v16.33001621289131h-9.8z" android:fillColor="#FF3B5C" android:fillAlpha="0.45"/>
+          <path android:pathData="M249.2,89.48551303718833h1.6v35.31012431371481h-1.6z" android:fillColor="#19E3A1" android:fillAlpha="0.55"/>
+          <path android:pathData="M245,98.48551303718833h9.8v17.31012431371481h-9.8z" android:fillColor="#19E3A1" android:fillAlpha="0.5"/>
+          <path android:pathData="M270.2,76.22112600325778h1.6v39.322746300634726h-1.6z" android:fillColor="#19E3A1" android:fillAlpha="0.55"/>
+          <path android:pathData="M266,85.22112600325778h9.8v21.322746300634726h-9.8z" android:fillColor="#19E3A1" android:fillAlpha="0.5"/>
+          <path android:pathData="M291.2,64.65771199724134h1.6v44.20655814691226h-1.6z" android:fillColor="#FF3B5C" android:fillAlpha="0.55"/>
+          <path android:pathData="M287,73.65771199724134h9.8v26.206558146912258h-9.8z" android:fillColor="#FF3B5C" android:fillAlpha="0.45"/>
+          <path android:pathData="M312.2,58.21967498617603h1.6v52.5333968274077h-1.6z" android:fillColor="#19E3A1" android:fillAlpha="0.55"/>
+          <path android:pathData="M308,67.21967498617603h9.8v34.5333968274077h-9.8z" android:fillColor="#19E3A1" android:fillAlpha="0.5"/>
+          <path android:pathData="M333.2,54.18628059005797h1.6v48.0864175742219h-1.6z" android:fillColor="#19E3A1" android:fillAlpha="0.55"/>
+          <path android:pathData="M329,63.18628059005797h9.8v30.086417574221898h-9.8z" android:fillColor="#19E3A1" android:fillAlpha="0.5"/>
+          <path android:pathData="M354.2,46.51033297568744h1.6v48.5738897015881h-1.6z" android:fillColor="#19E3A1" android:fillAlpha="0.55"/>
+          <path android:pathData="M350,55.51033297568744h9.8v30.5738897015881h-9.8z" android:fillColor="#19E3A1" android:fillAlpha="0.5"/>
+          <path android:pathData="M18.9,185.4 L39.9,183.9 L60.9,171.7 L81.9,160.6 L102.9,158.8 L123.9,145.1 L144.9,137.9 L165.9,137.9 L186.9,134.2 L207.9,123.0 L228.9,109.9 L249.9,107.1 L270.9,95.9 L291.9,86.8 L312.9,84.5 L333.9,78.2 L354.9,70.8" android:strokeColor="#6FA0FF" android:strokeWidth="2.2" android:strokeAlpha="0.9"/>
+          <path android:pathData="M18.9,185.4 L39.9,183.9 L60.9,171.7 L81.9,160.6 L102.9,158.8 L123.9,145.1 L144.9,137.9 L165.9,137.9 L186.9,134.2 L207.9,123.0 L228.9,109.9 L249.9,107.1 L270.9,95.9 L291.9,86.8 L312.9,84.5 L333.9,78.2 L354.9,70.8" android:strokeColor="#A855F7" android:strokeWidth="5" android:strokeAlpha="0.22"/>
+          <path android:pathData="M288.0,202 Q288.0,174.0 300,170.0 Q312.0,174.0 312.0,202 Z" android:fillColor="#05051A" android:fillAlpha="1" android:strokeColor="#A855F7" android:strokeWidth="0.8" android:strokeAlpha="0.7"/>
+          <path android:pathData="M294.8,162 a5.2,5.8 0 1,0 10.4,0 a5.2,5.8 0 1,0 -10.4,0 Z" android:fillColor="#05051A" android:fillAlpha="1" android:strokeColor="#A855F7" android:strokeWidth="0.8" android:strokeAlpha="0.7"/>
+          <path android:pathData="M296.9,162 a1.1,1.1 0 1,0 2.2,0 a1.1,1.1 0 1,0 -2.2,0 Z" android:fillColor="#D8B4FE" android:fillAlpha="1.0"/>
+          <path android:pathData="M300.9,162 a1.1,1.1 0 1,0 2.2,0 a1.1,1.1 0 1,0 -2.2,0 Z" android:fillColor="#D8B4FE" android:fillAlpha="1.0"/>
+          <path android:pathData="M312.2,192 Q312.2,165.8 326,161.2 Q339.8,165.8 339.8,192 Z" android:fillColor="#05051A" android:fillAlpha="1" android:strokeColor="#A855F7" android:strokeWidth="0.8" android:strokeAlpha="0.7"/>
+          <path android:pathData="M320.02,152 a5.9799999999999995,6.669999999999999 0 1,0 11.959999999999999,0 a5.9799999999999995,6.669999999999999 0 1,0 -11.959999999999999,0 Z" android:fillColor="#05051A" android:fillAlpha="1" android:strokeColor="#A855F7" android:strokeWidth="0.8" android:strokeAlpha="0.7"/>
+          <path android:pathData="M322.59999999999997,152 a1.1,1.1 0 1,0 2.2,0 a1.1,1.1 0 1,0 -2.2,0 Z" android:fillColor="#D8B4FE" android:fillAlpha="1.0"/>
+          <path android:pathData="M327.2,152 a1.1,1.1 0 1,0 2.2,0 a1.1,1.1 0 1,0 -2.2,0 Z" android:fillColor="#D8B4FE" android:fillAlpha="1.0"/>
+          <path android:pathData="M335.2,206 Q335.2,176.8 346,173.2 Q356.8,176.8 356.8,206 Z" android:fillColor="#05051A" android:fillAlpha="1" android:strokeColor="#A855F7" android:strokeWidth="0.8" android:strokeAlpha="0.7"/>
+          <path android:pathData="M341.32,166 a4.680000000000001,5.22 0 1,0 9.360000000000001,0 a4.680000000000001,5.22 0 1,0 -9.360000000000001,0 Z" android:fillColor="#05051A" android:fillAlpha="1" android:strokeColor="#A855F7" android:strokeWidth="0.8" android:strokeAlpha="0.7"/>
+          <path android:pathData="M343.09999999999997,166 a1.1,1.1 0 1,0 2.2,0 a1.1,1.1 0 1,0 -2.2,0 Z" android:fillColor="#D8B4FE" android:fillAlpha="1.0"/>
+          <path android:pathData="M346.7,166 a1.1,1.1 0 1,0 2.2,0 a1.1,1.1 0 1,0 -2.2,0 Z" android:fillColor="#D8B4FE" android:fillAlpha="1.0"/>
+          <path android:pathData="M92,204h176v7h-176z" android:fillColor="#0A0D2E" android:fillAlpha="1" android:strokeColor="#4F8CFF" android:strokeWidth="1.2" android:strokeAlpha="0.8"/>
+          <path android:pathData="M96,204h168" android:strokeColor="#D4AF37" android:strokeWidth="1.2" android:strokeAlpha="0.9"/>
+          <path android:pathData="M138,198 L138,80 L150,52 L160,72 L170,40 L180,66 L190,40 L200,72 L210,52 L222,80 L222,198 Z" android:fillColor="#0D1038" android:fillAlpha="1" android:strokeColor="#4F8CFF" android:strokeWidth="1.6" android:strokeAlpha="0.95"/>
+          <path android:pathData="M150,192 L150,90 L160,74 L170,94 L180,74 L190,94 L200,74 L210,90 L210,192 Z" android:fillColor="#161C5C" android:fillAlpha="0.7"/>
+          <path android:pathData="M180,48 L186,64 L180,74 L174,64 Z" android:fillColor="#D4AF37" android:fillAlpha="0.95"/>
+          <path android:pathData="M146,118 Q180,92 214,118 L228,192 L132,192 Z" android:fillColor="#0A0A22" android:fillAlpha="1" android:strokeColor="#A855F7" android:strokeWidth="1.2" android:strokeAlpha="0.9"/>
+          <path android:pathData="M164,110 L180,156 L196,110 Q180,124 164,110 Z" android:fillColor="#171846" android:fillAlpha="1"/>
+          <path android:pathData="M164,112 Q180,140 196,112" android:strokeColor="#D4AF37" android:strokeWidth="1.6" android:strokeAlpha="0.95"/>
+          <path android:pathData="M177.8,160 a2.2,2.2 0 1,0 4.4,0 a2.2,2.2 0 1,0 -4.4,0 Z" android:fillColor="#D4AF37" android:fillAlpha="1.0"/>
+          <path android:pathData="M177.8,172 a2.2,2.2 0 1,0 4.4,0 a2.2,2.2 0 1,0 -4.4,0 Z" android:fillColor="#D4AF37" android:fillAlpha="1.0"/>
+          <path android:pathData="M146,118 Q180,92 214,118" android:strokeColor="#C4B5FD" android:strokeWidth="1.2" android:strokeAlpha="0.8"/>
+          <path android:pathData="M163,100 Q160,60 180,56 Q200,60 197,100 Q189,90 180,90 Q171,90 163,100 Z" android:fillColor="#0A0A22" android:fillAlpha="1" android:strokeColor="#A855F7" android:strokeWidth="1.1" android:strokeAlpha="0.95"/>
+          <path android:pathData="M168.5,82 a11.5,13 0 1,0 23.0,0 a11.5,13 0 1,0 -23.0,0 Z" android:fillColor="#05050F" android:fillAlpha="1.0"/>
+          <path android:pathData="M126,150h18v46h-18z" android:fillColor="#0D1038" android:fillAlpha="1" android:strokeColor="#4F8CFF" android:strokeWidth="1.3" android:strokeAlpha="0.9"/>
+          <path android:pathData="M216,150h18v46h-18z" android:fillColor="#0D1038" android:fillAlpha="1" android:strokeColor="#4F8CFF" android:strokeWidth="1.3" android:strokeAlpha="0.9"/>
+          <path android:pathData="M128.5,146 a6.5,5 0 1,0 13.0,0 a6.5,5 0 1,0 -13.0,0 Z" android:fillColor="#0A0A22" android:fillAlpha="1" android:strokeColor="#A855F7" android:strokeWidth="0.8" android:strokeAlpha="0.8"/>
+          <path android:pathData="M130,138 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0 Z" android:fillColor="#D4AF37" android:fillAlpha="1" android:strokeColor="#8A6D1A" android:strokeWidth="0.8" android:strokeAlpha="1.0"/>
+          <path android:pathData="M118,198h124l-7,-16h-110z" android:fillColor="#0A0D2E" android:fillAlpha="1" android:strokeColor="#4F8CFF" android:strokeWidth="1.1" android:strokeAlpha="0.7"/>
+          <path android:pathData="M4,201 L6,193 Q12,188 24,186 L44,181 Q56,171 78,170 Q94,170 102,178 L112,183 Q117,186 117,193 L117,201 Z" android:fillColor="#14103A" android:fillAlpha="1" android:strokeColor="#8B7CFF" android:strokeWidth="1.1" android:strokeAlpha="0.95"/>
+          <path android:pathData="M52,181 Q62,174 78,174 Q89,175 96,181 Z" android:fillColor="#223A8A" android:fillAlpha="0.85"/>
+          <path android:pathData="M12,189 Q34,182 52,178 Q72,168 98,176" android:strokeColor="#C4B5FD" android:strokeWidth="1.3" android:strokeAlpha="0.9"/>
+          <path android:pathData="M20.5,201 a9.5,9.5 0 1,0 19.0,0 a9.5,9.5 0 1,0 -19.0,0 Z" android:fillColor="#04040E" android:fillAlpha="1.0"/>
+          <path android:pathData="M25.8,201 a4.2,4.2 0 1,0 8.4,0 a4.2,4.2 0 1,0 -8.4,0 Z" android:fillColor="#D4AF37" android:fillAlpha="1.0"/>
+          <path android:pathData="M82.5,201 a9.5,9.5 0 1,0 19.0,0 a9.5,9.5 0 1,0 -19.0,0 Z" android:fillColor="#04040E" android:fillAlpha="1.0"/>
+          <path android:pathData="M87.8,201 a4.2,4.2 0 1,0 8.4,0 a4.2,4.2 0 1,0 -8.4,0 Z" android:fillColor="#D4AF37" android:fillAlpha="1.0"/>
+          <path android:pathData="M110.6,190 a3.4,2.2 0 1,0 6.8,0 a3.4,2.2 0 1,0 -6.8,0 Z" android:fillColor="#FFF3B0" android:fillAlpha="1.0"/>
+          <path android:pathData="M114,190 L136,194 L136,186 Z" android:fillColor="#FFF3B0" android:fillAlpha="0.14"/>
+          <path android:pathData="M3.8,194 a2.2,1.6 0 1,0 4.4,0 a2.2,1.6 0 1,0 -4.4,0 Z" android:fillColor="#FF3B5C" android:fillAlpha="1.0"/>
+          <path android:pathData="M8,207 H112" android:strokeColor="#4F8CFF" android:strokeWidth="1.6" android:strokeAlpha="0.7"/>
+          <path android:pathData="M249,203.0 a13,4.2 0 1,0 26,0 a13,4.2 0 1,0 -26,0 Z" android:fillColor="#D4AF37" android:fillAlpha="1" android:strokeColor="#8A6D1A" android:strokeWidth="0.7" android:strokeAlpha="1.0"/>
+          <path android:pathData="M249,198.8 a13,4.2 0 1,0 26,0 a13,4.2 0 1,0 -26,0 Z" android:fillColor="#D4AF37" android:fillAlpha="1" android:strokeColor="#8A6D1A" android:strokeWidth="0.7" android:strokeAlpha="1.0"/>
+          <path android:pathData="M249,194.6 a13,4.2 0 1,0 26,0 a13,4.2 0 1,0 -26,0 Z" android:fillColor="#D4AF37" android:fillAlpha="1" android:strokeColor="#8A6D1A" android:strokeWidth="0.7" android:strokeAlpha="1.0"/>
+          <path android:pathData="M249,190.4 a13,4.2 0 1,0 26,0 a13,4.2 0 1,0 -26,0 Z" android:fillColor="#D4AF37" android:fillAlpha="1" android:strokeColor="#8A6D1A" android:strokeWidth="0.7" android:strokeAlpha="1.0"/>
+          <path android:pathData="M249,186.2 a13,4.2 0 1,0 26,0 a13,4.2 0 1,0 -26,0 Z" android:fillColor="#D4AF37" android:fillAlpha="1" android:strokeColor="#8A6D1A" android:strokeWidth="0.7" android:strokeAlpha="1.0"/>
+          <path android:pathData="M249,182.0 a13,4.2 0 1,0 26,0 a13,4.2 0 1,0 -26,0 Z" android:fillColor="#D4AF37" android:fillAlpha="1" android:strokeColor="#8A6D1A" android:strokeWidth="0.7" android:strokeAlpha="1.0"/>
+          <path android:pathData="M274,203.0 a12,4.0 0 1,0 24,0 a12,4.0 0 1,0 -24,0 Z" android:fillColor="#E6C34A" android:fillAlpha="1" android:strokeColor="#8A6D1A" android:strokeWidth="0.7" android:strokeAlpha="1.0"/>
+          <path android:pathData="M274,198.8 a12,4.0 0 1,0 24,0 a12,4.0 0 1,0 -24,0 Z" android:fillColor="#E6C34A" android:fillAlpha="1" android:strokeColor="#8A6D1A" android:strokeWidth="0.7" android:strokeAlpha="1.0"/>
+          <path android:pathData="M274,194.6 a12,4.0 0 1,0 24,0 a12,4.0 0 1,0 -24,0 Z" android:fillColor="#E6C34A" android:fillAlpha="1" android:strokeColor="#8A6D1A" android:strokeWidth="0.7" android:strokeAlpha="1.0"/>
+          <path android:pathData="M274,190.4 a12,4.0 0 1,0 24,0 a12,4.0 0 1,0 -24,0 Z" android:fillColor="#E6C34A" android:fillAlpha="1" android:strokeColor="#8A6D1A" android:strokeWidth="0.7" android:strokeAlpha="1.0"/>
+          <path android:pathData="M232,204 l6,-8 h20 l6,8 z" android:fillColor="#E6C34A" android:fillAlpha="1" android:strokeColor="#8A6D1A" android:strokeWidth="0.7" android:strokeAlpha="1.0"/>
+          <path android:pathData="M0,190h360v50h-360z"><aapt:attr name="android:fillColor"><gradient android:type="linear" android:startX="0" android:startY="196" android:endX="0" android:endY="240"><item android:offset="0" android:color="#0004050C"/><item android:offset="0.5" android:color="#D904050C"/><item android:offset="1" android:color="#FF04050C"/></gradient></aapt:attr></path>
+          </vector>
+          EOF
           cat > app/src/main/res/values/strings.xml <<'EOF'
           <resources><string name="d">Lets Eyes read the chart, follow the signal and tap in MT5.</string></resources>
+          EOF
+          cat > app/src/main/java/com/eyes/Hero.java <<'EOF'
+
+          package com.eyes;
+          import android.animation.ValueAnimator;
+          import android.content.Context;
+          import android.graphics.Bitmap;
+          import android.graphics.Canvas;
+          import android.graphics.Color;
+          import android.graphics.LinearGradient;
+          import android.graphics.Paint;
+          import android.graphics.Path;
+          import android.graphics.PorterDuff;
+          import android.graphics.PorterDuffXfermode;
+          import android.graphics.RadialGradient;
+          import android.graphics.RectF;
+          import android.graphics.Shader;
+          import android.graphics.Typeface;
+          import android.graphics.drawable.Drawable;
+          import android.view.HapticFeedbackConstants;
+          import android.view.MotionEvent;
+          import android.view.View;
+          import android.view.animation.LinearInterpolator;
+          import java.util.ArrayList;
+          import java.util.Random;
+          public class Hero extends View {
+          Drawable art;
+          Bitmap photo;
+          String rank = "E";
+          float t = 0, flash = 0;
+          ValueAnimator an;
+          Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+          Random rnd = new Random(7);
+          float[] px = new float[34], py = new float[34], pz = new float[34];
+          ArrayList<float[]> burst = new ArrayList<>();
+          Path clip = new Path();
+          public Hero(Context c) {
+          super(c);
+          int id = c.getResources().getIdentifier("hero", "drawable", c.getPackageName());
+          art = id == 0 ? null : c.getDrawable(id);
+          for (int i = 0; i < px.length; i++) { px[i] = rnd.nextFloat(); py[i] = rnd.nextFloat(); pz[i] = 1.4f + rnd.nextFloat() * 2.4f; }
+          }
+          public void setPhoto(Bitmap b) { photo = b; invalidate(); }
+          public void setRank(String r) { if (!r.equals(rank)) { rank = r; invalidate(); } }
+          protected void onAttachedToWindow() {
+          super.onAttachedToWindow();
+          an = ValueAnimator.ofFloat(0f, 1f);
+          an.setDuration(8000);
+          an.setRepeatCount(ValueAnimator.INFINITE);
+          an.setInterpolator(new LinearInterpolator());
+          an.addUpdateListener(a -> { t = (float) a.getAnimatedValue(); invalidate(); });
+          an.start();
+          }
+          protected void onDetachedFromWindow() {
+          if (an != null) an.cancel();
+          super.onDetachedFromWindow();
+          }
+          public boolean performClick() { return super.performClick(); }
+          public boolean onTouchEvent(MotionEvent e) {
+          if (e.getAction() == MotionEvent.ACTION_UP) {
+          float w = getWidth(), h = getHeight();
+          for (int i = 0; i < 48; i++) {
+          double a = rnd.nextDouble() * Math.PI * 2;
+          float s = 0.5f + rnd.nextFloat() * 2.2f;
+          burst.add(new float[]{w * 0.5f, h * 0.36f, (float) Math.cos(a) * s, (float) Math.sin(a) * s, 1f});
+          }
+          flash = 1f;
+          performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+          performClick();
+          }
+          return true;
+          }
+          protected void onDraw(Canvas c) {
+          float w = getWidth(), h = getHeight(), k = w / 360f;
+          clip.reset();
+          clip.addRoundRect(new RectF(0, 0, w, h), 24f, 24f, Path.Direction.CW);
+          c.save();
+          c.clipPath(clip);
+          c.drawColor(0xFF04050C);
+          if (photo != null) {
+          float s = Math.max(w / photo.getWidth(), h / photo.getHeight());
+          float bw = photo.getWidth() * s, bh = photo.getHeight() * s;
+          c.drawBitmap(photo, null, new RectF((w - bw) / 2, (h - bh) / 2, (w + bw) / 2, (h + bh) / 2), p);
+          } else if (art != null) {
+          art.setBounds(0, 0, (int) w, (int) h);
+          art.draw(c);
+          }
+          float pulse = 0.5f + 0.5f * (float) Math.sin(t * Math.PI * 2);
+          p.setShader(new RadialGradient(w * 0.5f, h * 0.42f, h * (0.5f + 0.1f * pulse), new int[]{Color.argb((int) Math.min(255, 60 + 60 * pulse + 70 * flash), 168, 85, 247), Color.argb(0, 79, 140, 255)}, null, Shader.TileMode.CLAMP));
+          p.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SCREEN));
+          c.drawRect(0, 0, w, h, p);
+          p.setShader(null);
+          p.setXfermode(null);
+          p.setStyle(Paint.Style.FILL);
+          if (photo == null) {
+          float g = 0.7f + 0.3f * (float) Math.sin(t * Math.PI * 6) + flash;
+          for (int i = 0; i < 2; i++) {
+          float ex = (i == 0 ? 174f : 186f) * k, ey = 82f * k;
+          p.setColor(Color.argb((int) Math.min(255, 90 * g), 192, 132, 252));
+          c.drawCircle(ex, ey, 6f * k, p);
+          p.setColor(Color.argb((int) Math.min(255, 230 * g), 235, 220, 255));
+          c.drawCircle(ex, ey, 2.3f * k, p);
+          }
+          }
+          for (int i = 0; i < px.length; i++) {
+          int sp = 1 + i % 3;
+          float yy = ((py[i] - t * sp) % 1f + 1f) % 1f;
+          float xx = px[i] + 0.02f * (float) Math.sin(t * Math.PI * 2 * (1 + i % 2) + i);
+          p.setColor(i % 3 == 0 ? Color.argb(220, 255, 215, 90) : Color.argb(170, 168, 140, 255));
+          c.drawCircle(xx * w, (0.08f + 0.86f * yy) * h, pz[i] * k * 0.9f, p);
+          }
+          for (int i = burst.size() - 1; i >= 0; i--) {
+          float[] b = burst.get(i);
+          b[0] += b[2] * 3f; b[1] += b[3] * 3f; b[4] -= 0.025f;
+          if (b[4] <= 0) { burst.remove(i); continue; }
+          p.setColor(Color.argb((int) (255 * b[4]), 216, 180, 254));
+          c.drawCircle(b[0], b[1], 3.2f * k * b[4] + 1f, p);
+          }
+          flash = Math.max(0f, flash - 0.035f);
+          p.setShader(new LinearGradient(0, h * 0.72f, 0, h, 0x0004050C, 0xCC04050C, Shader.TileMode.CLAMP));
+          c.drawRect(0, h * 0.72f, w, h, p);
+          p.setShader(null);
+          p.setTypeface(Typeface.DEFAULT_BOLD);
+          p.setLetterSpacing(0.12f);
+          p.setTextSize(h * 0.05f);
+          String label = "HUNTER RANK  " + rank;
+          float tw = p.measureText(label), pad = h * 0.035f;
+          RectF pill = new RectF(pad, pad, pad + tw + pad * 2, pad + h * 0.09f);
+          p.setColor(0x9904050C);
+          c.drawRoundRect(pill, 10f, 10f, p);
+          p.setStyle(Paint.Style.STROKE);
+          p.setStrokeWidth(2f);
+          p.setColor(0xAA4F8CFF);
+          c.drawRoundRect(pill, 10f, 10f, p);
+          p.setStyle(Paint.Style.FILL);
+          p.setColor(0xFFD8E4FF);
+          c.drawText(label, pill.left + pad, pill.centerY() + h * 0.018f, p);
+          p.setTextSize(h * 0.04f);
+          p.setColor(Color.argb(150, 200, 210, 255));
+          String hint = "TAP TO ARISE";
+          c.drawText(hint, (w - p.measureText(hint)) / 2, h - pad, p);
+          p.setLetterSpacing(0f);
+          p.setStyle(Paint.Style.STROKE);
+          p.setStrokeWidth(3f);
+          p.setColor(0xAA3B6BFF);
+          c.drawRoundRect(new RectF(1.5f, 1.5f, w - 1.5f, h - 1.5f), 24f, 24f, p);
+          p.setStyle(Paint.Style.FILL);
+          c.restore();
+          }
+          }
           EOF
           cat > app/src/main/java/com/eyes/MainActivity.java <<'EOF'
           package com.eyes;
@@ -74,6 +323,7 @@ jobs:
           static TextView out;
           static Runnable refresh;
           static TextView jv;
+          static Hero hero;
           SharedPreferences sp;
           TextView sigBig, sigSub;
           static final int BG = 0xFF04050C, CARD = 0xFF0A1030, GOLD = 0xFF4F8CFF, VIO = 0xFFA855F7, UP = 0xFF19E3A1, DN = 0xFFFF3B5C, TX = 0xFFEAF2FF, MUT = 0xFF7F8FB5, KEY = 0xFF10184A;
@@ -144,6 +394,43 @@ jobs:
           paint(b, name, key);
           b.setOnClickListener(v -> { sp.edit().putBoolean(key, !sp.getBoolean(key, false)).apply(); paint(b, name, key); refresh.run(); });
           }
+          String rankText() {
+          String j = sp.getString("journal", "");
+          int w = 0;
+          if (!j.isEmpty()) for (String l : j.split("\n")) {
+          if (l.contains("CLOSED")) {
+          String[] q = l.trim().split("\\s+");
+          try { if (Double.parseDouble(q[q.length - 1]) > 0) w++; } catch (Exception e) {}
+          }
+          }
+          return w >= 100 ? "S" : w >= 60 ? "A" : w >= 30 ? "B" : w >= 15 ? "C" : w >= 5 ? "D" : "E";
+          }
+          void loadPhoto() {
+          String u = sp.getString("photo", "");
+          if (u.isEmpty()) { hero.setPhoto(null); return; }
+          try {
+          android.net.Uri uri = android.net.Uri.parse(u);
+          android.graphics.BitmapFactory.Options o = new android.graphics.BitmapFactory.Options();
+          o.inJustDecodeBounds = true;
+          java.io.InputStream a = getContentResolver().openInputStream(uri);
+          android.graphics.BitmapFactory.decodeStream(a, null, o);
+          a.close();
+          o.inSampleSize = Math.max(1, o.outWidth / 1080);
+          o.inJustDecodeBounds = false;
+          java.io.InputStream b = getContentResolver().openInputStream(uri);
+          hero.setPhoto(android.graphics.BitmapFactory.decodeStream(b, null, o));
+          b.close();
+          } catch (Exception e) { hero.setPhoto(null); }
+          }
+          protected void onActivityResult(int req, int res, Intent data) {
+          super.onActivityResult(req, res, data);
+          if (req == 77 && res == RESULT_OK && data != null && data.getData() != null) {
+          android.net.Uri uri = data.getData();
+          try { getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION); } catch (Exception e) {}
+          sp.edit().putString("photo", uri.toString()).commit();
+          loadPhoto();
+          }
+          }
           String journalText() {
           String j = sp.getString("journal", "");
           if (j.isEmpty()) return "No trades logged yet.";
@@ -172,6 +459,11 @@ jobs:
           root.setOrientation(LinearLayout.VERTICAL);
           root.setPadding(dp(18), dp(44), dp(18), dp(28));
           sv.addView(root);
+          hero = new Hero(this);
+          LinearLayout.LayoutParams hlp = new LinearLayout.LayoutParams(-1, (getResources().getDisplayMetrics().widthPixels - dp(40)) * 2 / 3);
+          hlp.setMargins(0, 0, 0, dp(14));
+          root.addView(hero, hlp);
+          loadPhoto();
           TextView sys = tv("[ SYSTEM ]", 11, GOLD, true);
           sys.setLetterSpacing(0.3f);
           root.addView(sys);
@@ -193,6 +485,7 @@ jobs:
           String tf = sp.getString("tf", "").isEmpty() ? "" : "  \u00B7  " + sp.getString("tf", "") + "m";
           sigSub.setText(pair + tf + "  \u00B7  " + (sp.getBoolean("trade", false) ? "TRADING LIVE" : "WATCH ONLY"));
           if (jv != null) jv.setText(journalText());
+          if (hero != null) hero.setRank(rankText());
           };
           LinearLayout ag = card(root, "SYSTEM  \u00B7  HUNTER");
           Button chk = btn("ARISE  \u2014  CHECK SIGNAL", true);
@@ -241,6 +534,12 @@ jobs:
           if (EyesService.me == null) out.setText("Eyes is off. Enable it in Accessibility first.");
           else { out.setText("Diagnosing..."); EyesService.me.diagnose(); }
           });
+          Button hb = btn("Set my own hero picture", false);
+          tl.addView(hb, lp());
+          hb.setOnClickListener(v -> { Intent pick = new Intent(Intent.ACTION_OPEN_DOCUMENT); pick.addCategory(Intent.CATEGORY_OPENABLE); pick.setType("image/*"); startActivityForResult(pick, 77); });
+          Button ho = btn("Use the original hero art", false);
+          tl.addView(ho, lp());
+          ho.setOnClickListener(v -> { sp.edit().remove("photo").commit(); hero.setPhoto(null); });
           Button fg = btn("Forget last signal", false);
           tl.addView(fg, lp());
           fg.setOnClickListener(v -> { sp.edit().remove("last").remove("open").apply(); refresh.run(); });
